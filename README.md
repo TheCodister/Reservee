@@ -9,9 +9,11 @@ Currently, two official plugins are available:
 
 1. Read the instructions carefully
 
+- Open Visual Studio Code.
 - First clone this repository by running "git clone https://github.com/TheCodister/HCMUT-SPSS.git" in the terminal.
+- Then run "cd HCMUT-SPSS"
 - Then run "npm install".
-- Then run "npm run dev". Your browser will display the system.
+- Then run "npm run dev". Your browser will display the project, if not, go to http://localhost:5173/ or whatever link the terminal displays.
 
 2. Note
 
