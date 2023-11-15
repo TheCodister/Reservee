@@ -7,7 +7,7 @@ const Home = () => {
         <h1>Trang chủ</h1>
       </div>
       <div className="home-button">
-        <Button name="In" icon="./Images/image3.svg" address="/BuyPaper" />
+        <Button name="In" icon="./Images/image3.svg" address="/Print" />
         <Button
           name="Lịch sử in"
           icon="./Images/image5.svg"
@@ -16,7 +16,7 @@ const Home = () => {
         <Button
           name="Mua giấy"
           icon="./Images/raphael_paper.svg"
-          address="/Print"
+          address="/BuyPaper"
         />
       </div>
       <h1 className="home-logout">Đăng xuất</h1>
