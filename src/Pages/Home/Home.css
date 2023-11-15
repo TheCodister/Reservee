@@ -1,0 +1,29 @@
+.home {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  flex-direction: column;
+}
+.home a {
+  text-decoration: none;
+}
+.home-title {
+  height: 10%;
+}
+.home-button {
+  display: flex;
+  height: 80%;
+  gap: 10em;
+  justify-content: center;
+  align-items: center;
+}
+.home-logout {
+  width: 90%;
+  text-align: right;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.home-logout:hover {
+  text-decoration: none;
+}
