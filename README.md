@@ -22,3 +22,5 @@ Currently, two official plugins are available:
 - To implement your work,go to the folder 'Pages'. In the folder you will see all the folders that contain the system's page, each folder will have 2 file, a .css file for styling and an index.jsx folder to build the structure, do your work in 2 of these file.
 
 - To see the display of your, either click on the button on the homepage to redirect you to there or add these path to your search bar on the browser:"/Print" to go to Print page, "/History" to go to printing log and "/BuyPaper" to go to buyPaper page.
+
+-For a quick tutorial of ReactJS, check this link: https://www.youtube.com/watch?v=j942wKiXFu8&list=PL4cUxeGkcC9gZD-Tvwfod2gaISzfRiP9d.
