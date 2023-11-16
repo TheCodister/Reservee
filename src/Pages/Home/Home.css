@@ -5,9 +5,6 @@
   align-items: center;
   flex-direction: column;
 }
-.home a {
-  text-decoration: none;
-}
 .home-title {
   height: 10%;
 }

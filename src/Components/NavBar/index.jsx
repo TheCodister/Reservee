@@ -1,4 +1,5 @@
 import "./NavBar.css";
+import { Link } from "react-router-dom";
 const NavBar = () => {
   return (
     <nav className="navbar">
@@ -8,10 +9,12 @@ const NavBar = () => {
         <p>NQ</p>
       </div>
       <div className="navbar-second-section">
-        <p>Trang chủ</p>
+        <Link to="/">
+          <p>Trang chủ</p>
+        </Link>
         <p>Hướng dẫn</p>
         <p>Hỗ trợ</p>
-        <p>Số giấy còn lại: 0</p>
+        <h2>Số giấy còn lại: 0</h2>
       </div>
     </nav>
   );
