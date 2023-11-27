@@ -1,7 +1,12 @@
+import "./History.css";
+import { ReturnButton } from "../../Components";
 const History = () => {
   return (
     <div className="history">
-      <h1>Lịch sử in</h1>
+      <div className="history-title">
+        <h1>Lịch sử in</h1>
+        <ReturnButton />
+      </div>
     </div>
   );
 };

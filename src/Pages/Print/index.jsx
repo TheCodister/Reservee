@@ -1,7 +1,12 @@
+import "./Print.css";
+import { ReturnButton } from "../../Components";
 const Print = () => {
   return (
     <div className="print">
-      <h1>In</h1>
+      <div className="print-title">
+        <h1>In</h1>
+        <ReturnButton />
+      </div>
     </div>
   );
 };
