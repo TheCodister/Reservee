@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import { Home, BuyPaper, History, Print } from "./Pages";
+import { Home, BuyPaper, History, Print, PrintMenu } from "./Pages";
 import { NavBar } from "./Components";
 import "./App.css";
 
@@ -17,6 +17,7 @@ function App() {
             <Route path="/BuyPaper" element={<BuyPaper />} />
             <Route path="/History" element={<History />} />
             <Route path="/Print" element={<Print />} />
+            <Route path="/PrintMenu" element={<PrintMenu />} />
           </Routes>
         </div>
       </div>

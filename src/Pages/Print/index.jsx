@@ -1,6 +1,7 @@
 import "./Print.css";
 import { ReturnButton } from "../../Components";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
 const Print = () => {
   const [file, setFile] = useState(null);
@@ -40,6 +41,11 @@ const Print = () => {
         console.error(err);
       });
   };
+  const handleDelete = () => {
+    setUpdateIcon("");
+    setMsg("Xóa thành công!");
+    setFile(null);
+  };
   return (
     <div className="print">
       <div className="print-title">
@@ -73,8 +79,10 @@ const Print = () => {
         )}
       </div>
       <div className="print-confirm">
-        <h1>Xác nhận</h1>
-        <h1>Xóa</h1>
+        <Link to="/PrintMenu">
+          <h1>Xác nhận</h1>
+        </Link>
+        <h1 onClick={handleDelete}>Xóa</h1>
       </div>
     </div>
   );
