@@ -1,0 +1,25 @@
+.printing-logs-table-container {
+    margin: 20px;
+}
+  
+.printing-logs-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.printing-logs-table th,
+.printing-logs-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.printing-logs-table th {
+    background-color: #f2f2f2;
+}
+
+.printing-logs-table tbody tr:hover {
+    background-color: #f5f5f5;
+}
+  
