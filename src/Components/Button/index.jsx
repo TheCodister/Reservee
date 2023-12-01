@@ -7,7 +7,9 @@ const Button = (props) => {
   return (
     <Link to={address}>
       <div className="button">
-        <img src={icon} alt="Icon" />
+        <div className="button-icon">
+          <img src={icon} alt="Icon" />
+        </div>
         <h1>{name}</h1>
       </div>
     </Link>
