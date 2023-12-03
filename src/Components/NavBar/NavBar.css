@@ -8,11 +8,13 @@
   border-right: #9b9b9b solid;
 }
 .navbar-button {
-  width: 8em;
+  width: 10vw;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-self: center;
   align-items: flex-start;
+  font-size: 1.2rem;
 }
 .navbar img {
   width: 14vw;
@@ -34,5 +36,5 @@
   cursor: pointer;
 }
 .navbar-butt:hover {
-  background-color: #9b9b9b;
+  background-color: #e7e7e7;
 }

@@ -7,7 +7,9 @@ const NavBar = () => {
       <div className="navbar-button">
         <div className="navbar-butt">
           <img src="./Images/home-select.png" alt="Icon" />
-          <p>Home</p>
+          <Link to="/">
+            <p>Home</p>
+          </Link>
         </div>
         <div className="navbar-butt">
           <img src="./Images/chart.png" alt="Icon" />
@@ -15,7 +17,9 @@ const NavBar = () => {
         </div>
         <div className="navbar-butt">
           <img src="./Images/documents.png" alt="Icon" />
-          <p>History</p>
+          <Link to="/History">
+            <p>History</p>
+          </Link>
         </div>
         <div className="navbar-butt">
           <img src="./Images/user.png" alt="Icon" />

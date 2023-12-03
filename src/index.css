@@ -3,7 +3,7 @@ body {
   display: flex;
   place-items: center;
   flex-direction: row;
-  font-family: "Montserrat", sans-serif;
+  font-family: "Alegreya", serif;
 }
 a {
   text-decoration: none;
