@@ -7,8 +7,8 @@
   background-color: #fff;
   border-right: #9b9b9b solid;
 }
-.navbar-button{
-  width:8em;
+.navbar-button {
+  width: 8em;
   display: flex;
   flex-direction: column;
   align-self: center;
@@ -19,12 +19,12 @@
   height: 17vh;
   margin-top: 2vw;
 }
-.button img{
-  width:2vw;
+.navbar-butt img {
+  width: 2vw;
   height: 2vw;
   margin: 0;
 }
-.button{
+.navbar-butt {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -33,6 +33,6 @@
   border-radius: 2em;
   cursor: pointer;
 }
-.button:hover{
+.navbar-butt:hover {
   background-color: #9b9b9b;
 }
