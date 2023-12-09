@@ -4,6 +4,8 @@ body {
   place-items: center;
   flex-direction: row;
   font-family: "Alegreya", serif;
+  overflow-y: hidden;
+  overflow-x: hidden;
 }
 a {
   text-decoration: none;

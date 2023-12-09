@@ -5,30 +5,33 @@ const NavBar = () => {
     <nav className="navbar">
       <img src="./Images/Logo.png" alt="image" />
       <div className="navbar-button">
-        <div className="navbar-butt">
-          <img src="./Images/home-select.png" alt="Icon" />
-          <Link to="/">
+        <Link to="/">
+          <div className="navbar-butt">
+            <img src="./Images/home-select.png" alt="Icon" />
             <p>Home</p>
-          </Link>
-        </div>
-        <div className="navbar-butt">
-          <img src="./Images/chart.png" alt="Icon" />
-          <p>Reminder</p>
-        </div>
-        <div className="navbar-butt">
-          <img src="./Images/documents.png" alt="Icon" />
-          <Link to="/History">
+          </div>
+        </Link>
+        
+        <Link to="/History">
+          <div className="navbar-butt">
+            <img src="./Images/documents.png" alt="Icon" />
             <p>History</p>
-          </Link>
-        </div>
-        <div className="navbar-butt">
-          <img src="./Images/user.png" alt="Icon" />
-          <p>Account</p>
-        </div>
-        <div className="navbar-butt">
-          <img src="./Images/logout.png" alt="Icon" />
-          <p>Log out</p>
-        </div>
+          </div>
+        </Link>
+
+        <Link to="/Schedule">
+          <div className="navbar-butt">
+            <img src="./Images/chart.png" alt="Icon" />
+            <p>Schedule</p>
+          </div>
+        </Link>
+
+        <Link to="/Schedule">
+          <div className="navbar-butt">
+            <img src="./Images/logout.png" alt="Icon" />
+            <p>Log out</p>
+          </div>
+        </Link>
       </div>
     </nav>
   );

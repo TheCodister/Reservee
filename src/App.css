@@ -3,4 +3,5 @@
 }
 .content {
   width: 86vw;
+  overflow: auto;
 }

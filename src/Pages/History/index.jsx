@@ -6,7 +6,14 @@ const History = () => {
   return (
     <div className="history">
       <div className="history-title">
-        <h1>History</h1>
+        <img src="./Images/Food.png"/>
+        <img src="./Images/Food.png"/>
+        <img src="./Images/Food.png"/>
+        <img src="./Images/Food.png"/>
+        <img src="./Images/Food.png"/>
+        <img src="./Images/Food.png"/>
+        <img src="./Images/Food.png"/>
+        <img src="./Images/Food.png"/>
       </div>
     </div>
   );
