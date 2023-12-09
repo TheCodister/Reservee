@@ -1,10 +1,88 @@
 .home {
   display: flex;
   width: 100%;
-  height: 100%;
+  height: 100vh;
   align-items: center;
   flex-direction: column;
+  overflow: auto;
 }
 .home-title {
-  height: 10%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 20%;
+  margin-bottom: 2vw;
+}
+
+.home-search svg {
+  width: 3vw;
+}
+.home-search-icon {
+  scale: 1.4;
+}
+.home-search {
+  padding-left: 0.4vw;
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  width: 80vw;
+  height: 4em;
+  background-color: #d9d9d9;
+  border-radius: 3em;
+}
+.home-searchbar {
+  border: none;
+  border-left: #000 2.6px solid;
+  width: 75vw;
+  height: 2.5vw;
+  padding-left: 0.7vw;
+  background-color: #d9d9d9;
+  font-size: large;
+}
+.home-searchbar:focus {
+  outline: none;
+}
+.home-menu-item {
+  display: flex;
+  align-items: center;
+  border: #000 3px solid;
+  gap: 2vw;
+  border-radius: 1vw;
+  padding: 1.5vw;
+  width: 65vw;
+  height: 15vh;
+  cursor: pointer;
+}
+.home-menu {
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  gap: 3vh;
+}
+.home-menu-item-img {
+  display: flex;
+  justify-content: center;
+}
+.home-menu-item-img img {
+  width: 12vw;
+  height: 16vh;
+}
+.home-menu-item-des {
+  padding: 1vw;
+  width: 40vw;
+  border-left: #000 3px solid;
+  border-right: #000 3px solid;
+  font-size: 1.1vw;
+  display: flex;
+  flex-direction: column;
+  gap: 1vh;
+}
+.home-menu-item-des h2,
+p {
+  margin: 0;
+}
+.home-menu-item-table {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.7vw;
 }
