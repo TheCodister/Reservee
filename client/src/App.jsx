@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import { Home, History, Schedule } from "./Pages";
+import { Home, History, Schedule, APIsExample } from "./Pages";
 import { NavBar } from "./Components";
 import "./App.css";
 
@@ -65,6 +65,7 @@ function App() {
             <Route exact path="/" element={<Home data={dummyData} />} />
             <Route path="/History" element={<History />} />
             <Route path="/Schedule" element={<Schedule />} />
+            <Route path="/APIsExample" element={<APIsExample />} />
           </Routes>
         </div>
       </div>
