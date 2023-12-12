@@ -5,9 +5,6 @@
     "workspaces": [
       "server",
       "client"
-    ],
-    "scripts": {
-      "install": "yarn install --immutable"
-    }
+    ]
   }
   
