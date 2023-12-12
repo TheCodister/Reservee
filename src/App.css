@@ -3,5 +3,7 @@
 }
 .content {
   width: 86vw;
-  overflow: auto;
+  overflow-y: auto;
+  display: flex;
+  justify-content: center;
 }
