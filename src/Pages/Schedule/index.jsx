@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { CalendarButton } from "../../Components";
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import { FormModal } from "../../Components";
 import Button from '@mui/material/Button';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import ArrowCircleLeftIcon from '@mui/icons-material/ArrowCircleLeft';
@@ -141,6 +142,17 @@ const Schedule = () => {
   const [isTruncate, setIsTruncate] = useState(true);
   const [moreOrLess, setMoreOrLess] = useState(true);
   const [displayError, setDisplayError] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formData, setFormData]= useState({
+    FName:'',
+    Phone:'',
+    Email:'',
+    Date:'',
+    Time: '',
+    People: 0,
+    Note: '',
+  })
+
   const updateTruncate = () => {
     setIsTruncate(!isTruncate);
     setMoreOrLess(!moreOrLess);
@@ -160,6 +172,19 @@ const Schedule = () => {
   const rating = 4.8;
   const [userComment, setUserComment] = useState("")
   const [userRating, setUserRating] = useState(0)
+
+  const handleCreateButtonClick = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleConfirmModal = () => {
+    
+    setIsModalOpen(false);
+  }
 
   const handleCommentChange = (event) => {
     setUserComment(event.target.value);
@@ -238,11 +263,25 @@ const Schedule = () => {
           </div>
           
           <div className="createReservation">
-            <Button sx={{ borderRadius: "20px"}} variant="contained" startIcon={<AddCircleOutlineIcon sx={{ color: "white"}}/>}>
+            <Button 
+              sx={{ borderRadius: "20px"}} 
+              variant="contained" 
+              startIcon={<AddCircleOutlineIcon sx={{ color: "white"}}/>}
+              onClick={handleCreateButtonClick} 
+            >
               Create
             </Button>
           </div>
         </div>
+        {isModalOpen && 
+          <FormModal 
+            onConfirm={handleConfirmModal} 
+            onClose={handleCloseModal} 
+            modalTitle={`Online Reservation`} 
+            formData={formData}
+            setFormData={setFormData}
+          />
+        }
       
         <TimeTable reserveList={reserveList}/>
 
