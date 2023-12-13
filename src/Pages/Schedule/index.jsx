@@ -178,6 +178,17 @@ const Schedule = () => {
   };
 
   const handleCloseModal = () => {
+    setFormData({
+      ...formData,
+      FName:'',
+      Phone:'',
+      Email:'',
+      Date:'',
+      Time: '',
+      People: 0,
+      Note: '',
+    });
+
     setIsModalOpen(false);
   };
 

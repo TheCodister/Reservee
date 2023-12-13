@@ -36,6 +36,10 @@
     margin-bottom: 15px;
   }
 
+  .input_form {
+    margin-left: 5vw;
+  }
+
   .modal.open {
     display: block;
   }
@@ -45,13 +49,13 @@
   }
 
   .cancel {
-    color: #42307D;
+    color: #333333;
     font-weight: bold;
     margin-bottom: 20px;
   }
 
   .confirm {
-    color: #7F56D9;
+    color: #1473E6;
     margin-bottom: 40px;
   }
 
@@ -62,22 +66,24 @@
   }
 
   .confirmBtn {
-    width: 100px;
+    width: 150px;
     height: 40px;
-    background-color: #7F56D9;
+    background-color: #1473E6;
     color: white;
     border: none;
-    border-radius: 10px;
+    border-radius: 20px;
     cursor: pointer;
     margin-right: 20px;
+    text-transform: uppercase;
   }
 
   .cancelBtn {
-    width: 100px;
+    width: 150px;
     height: 40px;
-    background-color: #F4EBFF;
-    color: #7F56D9;
-    border: none;
-    border-radius: 10px;
+    background-color: #ffffff;
+    color: #E62114;
+    border: 1px solid #E62114;
+    border-radius: 20px;
     cursor: pointer;
+    text-transform: uppercase;
   }
