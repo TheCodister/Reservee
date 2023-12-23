@@ -26,7 +26,7 @@ const NavBar = () => {
           </div>
         </Link>
 
-        <Link to="/Schedule">
+        <Link to="/APIsExample">
           <div className="navbar-butt">
             <img src="./Images/logout.png" alt="Icon" />
             <p>Log out</p>
