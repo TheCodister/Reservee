@@ -1,7 +1,6 @@
 // routes/restaurantRoutes.js
 const express = require('express');
-const models = require('../models'); // Adjust the path based on your folder structure
-
+const models = require('../models'); 
 const router = express.Router();
 const restaurantModel = models.restaurantModel;
 
