@@ -5,6 +5,8 @@ import "react-datepicker/dist/react-datepicker.css";
 const History = () => {
   const [tableHistory, setTableHistory] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const reservationsPerPage = 5;
 
   useEffect(() => {
@@ -13,15 +15,25 @@ const History = () => {
       .then((data) => setTableHistory(data))
       .catch((error) => console.error("Error fetching history:", error));
   }, []);
-  
+
+  const filteredReservations = tableHistory.filter((reservation) => {
+    if (!startDate && !endDate) return true; // If no date range is set, show all reservations
+
+    const reservationDate = new Date(reservation.date).getTime();
+    const startTimestamp = startDate ? new Date(startDate).getTime() : 0;
+    const endTimestamp = endDate ? new Date(endDate).getTime() : Infinity;
+
+    return reservationDate >= startTimestamp && reservationDate <= endTimestamp;
+  });
+
   const indexOfLastReservation = currentPage * reservationsPerPage;
   const indexOfFirstReservation = indexOfLastReservation - reservationsPerPage;
-  const currentReservations = tableHistory.slice(
+  const currentReservations = filteredReservations.slice(
     indexOfFirstReservation,
     indexOfLastReservation
   );
 
-  const totalPages = Math.ceil(tableHistory.length / reservationsPerPage);
+  const totalPages = Math.ceil(filteredReservations.length / reservationsPerPage);
 
   const handleNextPage = () => {
     setCurrentPage((prevPage) => prevPage + 1);
@@ -31,14 +43,40 @@ const History = () => {
     setCurrentPage((prevPage) => prevPage - 1);
   };
 
+  const handleStartDateChange = (date) => {
+    setStartDate(date);
+    setCurrentPage(1); // Reset to the first page when the date range changes
+  };
+
+  const handleEndDateChange = (date) => {
+    setEndDate(date);
+    setCurrentPage(1); // Reset to the first page when the date range changes
+  };
+
   return (
     <div className="history">
       <div className="history-title">
         <h2>History</h2>
       </div>
+      <div className="date-range-container">
+        <label htmlFor="startDate">Start Date: </label>
+        <input
+          type="date"
+          id="startDate"
+          value={startDate}
+          onChange={(e) => handleStartDateChange(e.target.value)}
+        />
+        <label htmlFor="endDate">End Date: </label>
+        <input
+          type="date"
+          id="endDate"
+          value={endDate}
+          onChange={(e) => handleEndDateChange(e.target.value)}
+        />
+      </div>
       <table>
         <thead>
-          <tr>
+        <tr>
             <th>Date</th>
             <th>Timeslots</th>
             <th>People</th>
@@ -50,7 +88,7 @@ const History = () => {
           </tr>
         </thead>
         <tbody>
-        {currentReservations.map((reservation) => (
+          {currentReservations.map((reservation) => (
             <tr key={reservation.id}>
               <td>{reservation.date}</td>
               <td>{reservation.timeslots}</td>
