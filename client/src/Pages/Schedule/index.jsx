@@ -1,5 +1,5 @@
 import "./Schedule.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { CalendarButton } from "../../Components";
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
@@ -10,7 +10,10 @@ import ArrowCircleLeftIcon from '@mui/icons-material/ArrowCircleLeft';
 import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
 import { IconButton, Rating, TextField } from "@mui/material";
 
+
+
 const TimeTable = ({reserveList, numOfTable, timeSlots}) => {
+  console.log("Timetable",reserveList)
   const [currentPage, setCurrentPage] = useState(0);
 
   const itemsPerPage = 6;
@@ -28,19 +31,19 @@ const TimeTable = ({reserveList, numOfTable, timeSlots}) => {
   const endIdx = startIdx + itemsPerPage;
 
   // Generate an empty table with rows and columns
-  const tableData = Array.from({ length: numOfTable}, () => new Array(itemsPerPage).fill(""));
-  // Fill the table with data from reserveList
-  reserveList.forEach(({ FName, People, tableNumber, timeSlot }) => {
-    if (timeSlot >= startIdx && timeSlot < endIdx) {
-      tableData[tableNumber - 1][timeSlot - startIdx - 1] = (
-        <div>
-          {FName}
-          <br />
-          People: {People}
-        </div>
-      );
-    }
-  });
+const tableData = Array.from({ length: numOfTable}, () => new Array(itemsPerPage).fill(""));
+// Fill the table with data from reserveList
+reserveList.forEach((reserve) => {
+  if (reserve.TimeSlot >= startIdx && reserve.TimeSlot < endIdx) {
+    tableData[reserve.tableNumber - 1][reserve.TimeSlot - startIdx - 1] = (
+      <div>
+        {reserve.FName}
+        <br />
+        People: {reserve.People}
+      </div>
+    );
+  }
+});
 
   return (
     <div className="tableWithArrow">
@@ -101,15 +104,21 @@ const CustomerReview = ({reviewObject}) => {
   )
 }
 
-
-
-const Schedule = () => {
-  // used data
+const Schedule = (props) => {
+  // fetched data from db
+  const {fetchedReserveList, fetchedReviewList, addReserveRecord, addReviewRecord} = props
+  
+  const userName = "Peter"
   const numOfTable = 8;
   const restaurantName = "Phở Hậu";
   const restaurantAddress = "Số 250, đường Thành Công, Quận 1, TPHCM";
   const restaurantDescription = "A path from a point approximately 330 metres east of the most south westerly corner of 17 Batherton Close, Widnes and approximately 208 metres east-south-east of the most southerly corner of Unit 3 Foundry Industrial Estate, Victoria Street, Widnes, proceeding in a generally east-north-easterly direction for approximately 28 metres to a point approximately 202 metres east-south-east of the most south-easterly corner of Unit 4 Foundry Industrial Estate, Victoria Street, and approximately 347 metres east of the most south-easterly corner of 17 Batherton Close, then proceeding in a generally northerly direction for approximately 21 metres to a point approximately 210 metres east of the most south-easterly corner of Unit 5 Foundry Industrial Estate, Victoria Street, and approximately 202 metres east-south-east of the most north-easterly corner of Unit 4 Foundry Industrial Estate, Victoria Street, then proceeding in a generally east-north-east direction for approximately 64 metres to a point approximately 282 metres east-south-east of the most easterly corner of Unit 2 Foundry Industrial Estate, Victoria Street, Widnes and approximately 259 metres east of the most southerly corner of Unit 4 Foundry Industrial Estate, Victoria Street, then proceeding in a generally east-north-east direction for approximately 350 metres to a point approximately 3 metres west-north-west of the most north westerly corner of the boundary fence of the scrap metal yard on the south side of Cornubia Road, Widnes, and approximately 47 metres west-south-west of the stub end of Cornubia Road be diverted to a 3 metre wide path from a point";
+  
+  const [reserveList, setReserveList] = useState(fetchedReserveList)
+
   const [formData, setFormData]= useState({
+    CustomerID: 0,
+    ReserveID: 0,
     FName:'',
     Phone:'',
     Email:'',
@@ -122,87 +131,37 @@ const Schedule = () => {
     TimeSlot: 0
   })
 
-  const reserveList1 = [
-    {FName: "Alice", People: 2, tableNumber: 1, timeSlot: 1},
-    {FName: "David", People: 3, tableNumber: 2, timeSlot: 1},
-    {FName: "Bella", People: 4, tableNumber: 1, timeSlot: 2},
-    {FName: "Anna", People: 2, tableNumber: 1, timeSlot: 3},
-    {FName: "Marry", People: 3, tableNumber: 2, timeSlot: 3},
-    {FName: "Clinton", People: 3, tableNumber: 3, timeSlot: 3},
-    {FName: "Clinton", People: 3, tableNumber: 4, timeSlot: 3},
-    {FName: "Clinton", People: 3, tableNumber: 4, timeSlot: 10},
-  ]
 
-  const reserveList2 = [
-    {FName: "Alice", People: 2, tableNumber: 2, timeSlot: 1},
-    {FName: "David", People: 3, tableNumber: 3, timeSlot: 1},
-    {FName: "Bella", People: 4, tableNumber: 4, timeSlot: 2},
-    {FName: "Anna", People: 2, tableNumber: 5, timeSlot: 3},
-    {FName: "Marry", People: 3, tableNumber: 6, timeSlot: 3},
-    {FName: "Clinton", People: 3, tableNumber: 7, timeSlot: 3},
-    {FName: "Clinton", People: 3, tableNumber: 8, timeSlot: 3},
-    {FName: "Clinton", People: 3, tableNumber: 9, timeSlot: 10},
-  ]
+  //end fetched data from db 
 
-  const reserveListByDate = [
-    {date: "14/12/2023", record: reserveList1},
-    {date: "15/12/2023", record: reserveList2},
-  ]
+  // data for current session 
+
   
-  const rating = 4.8; // need computed overall rating
-  // Data for current user review
-  const [userComment, setUserComment] = useState("")
-  const [userRating, setUserRating] = useState(0)
-  const reviewObjects = [
-    {
-      reviewRating: 4.5,
-      reviewDate: new Date(2023, 11, 3), // Months are zero-indexed (11 represents December)
-      reviewName: "John",
-      reviewDetail: "Very delicious"
-    },
-    {
-      reviewRating: 5,
-      reviewDate: new Date(2023, 11, 10), // Months are zero-indexed (11 represents December)
-      reviewName: "Michael",
-      reviewDetail: "Most delicious restaurant"
-    },
-    {
-      reviewRating: 4.5,
-      reviewDate: new Date(2023, 11, 12), // Months are zero-indexed (11 represents December)
-      reviewName: "Lazy",
-      reviewDetail: "Food has unique taste"
-    },
-    {
-      reviewRating: 4,
-      reviewDate: new Date(2023, 11, 14), // Months are zero-indexed (11 represents December)
-      reviewName: "Levoy",
-      reviewDetail: "Food is OK"
-    }
-  ]
-
-  //end data session
-
-  const [selectedDate, setSelectedDate] = useState(null);
-  const currentDate = new Date().toLocaleDateString("en-GB");
+  // selected date for display reservation
   
-  const [usedReserveList, setReserveList] = useState(() => {
-    const selectedReserve = reserveListByDate.find((entry) => entry.date === currentDate);
-    return selectedReserve ? selectedReserve.record : [];
-  });
+  const [selectedDate, setSelectedDate] = useState(new Date().toLocaleDateString("en-GB")); 
+console.log("SD", selectedDate)
+  const [reservationsForSelectedDate, setReservation] = useState(reserveList.filter((formData) => formData.Date === selectedDate));
 
   const [isTruncate, setIsTruncate] = useState(true);
   const [moreOrLess, setMoreOrLess] = useState(true);
   const [displayError, setDisplayError] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [userComment, setUserComment] = useState("");
+  const [userRating, setUserRating] = useState(0);
+
+  const calculateOverallRating = (reviews) => {
+    if (reviews.length === 0) {
+      return 0; // Return 0 if there are no reviews
+    }
   
-  const handleSelectedDate = (date) => {
-    setSelectedDate(date);
-    const formattedDate = date.toLocaleDateString("en-GB");
-    setReserveList(() => {
-    const selectedReserve = reserveListByDate.find((entry) => entry.date === formattedDate);
-    return selectedReserve ? selectedReserve.record : [];
-  });
-  }
+    const totalRating = reviews.reduce((sum, review) => sum + review.reviewRating, 0);
+    return totalRating / reviews.length; // Calculate average rating
+  };
+
+  const overallRating = calculateOverallRating(fetchedReviewList);
+  
+ 
 
   const updateTruncate = () => {
     setIsTruncate(!isTruncate);
@@ -215,7 +174,8 @@ const Schedule = () => {
 
   const handleCloseModal = () => {
     setFormData({
-      ...formData,
+      CustomerID: 0,
+      ReserveID: 0,
       FName:'',
       Phone:'',
       Email:'',
@@ -231,11 +191,7 @@ const Schedule = () => {
     setIsModalOpen(false);
   };
 
-  const handleConfirmModal = () => {
-    console.log(formData)
-    setIsModalOpen(false);
-  }
-
+  
   const handleCommentChange = (event) => {
     setUserComment(event.target.value);
   };
@@ -249,14 +205,17 @@ const Schedule = () => {
       setDisplayError(true);
     }
     else {
-      console.log('Comment:', userComment);
-      console.log('Rating:', userRating);
+      addReviewRecord(
+        {reviewDate: new Date(),
+          reviewName: userName,
+          reviewDetail: userComment,
+          reviewRating: userRating,}
+      )
       setUserComment("")
       setUserRating(0)
       setDisplayError(false);
     }
   }
-
   // Generate an array of time slots from 9:00 to 21:00 with 30-minute intervals
   const generateTimeSlots = () => {
     const startTime = new Date();
@@ -286,6 +245,41 @@ const Schedule = () => {
   };
 
   const timeSlots = generateTimeSlots();
+
+ // On select new date to view reservation 
+ const handleSelectedDate = (date) => {
+  
+   const formattedDate = date.toLocaleDateString("en-GB");
+   setSelectedDate(formattedDate)
+   setReservation(reserveList.filter((formData) => formData.Date === formattedDate))
+
+ }
+
+  const handleConfirmModal = () => {
+    const newFormData = {
+      ...formData,
+      Deposit: formData.People * 100000,
+      TimeSlot: timeSlots.findIndex((slot) => slot.start === formData.Time) + 1,
+    };
+
+    const updatedReserveList = [...fetchedReserveList, newFormData];
+    setReserveList(updatedReserveList);
+    addReserveRecord(newFormData);
+    setIsModalOpen(false);
+  };
+
+  useEffect(() => {
+    setReservation(reserveList.filter((formData) => formData.Date === selectedDate))
+  }, [reserveList]);
+    
+  useEffect(()=>{
+    console.log("RL",reserveList)
+  }, [reserveList])
+  
+  useEffect(()=>{
+    console.log("RRL",reservationsForSelectedDate)
+  }, [reservationsForSelectedDate])
+
 
 
   return (
@@ -334,14 +328,14 @@ const Schedule = () => {
           />
         }
       
-        <TimeTable reserveList={usedReserveList} numOfTable={numOfTable} timeSlots={timeSlots}/>
+        <TimeTable reserveList={reservationsForSelectedDate} numOfTable={numOfTable} timeSlots={timeSlots}/>
 
         <div className="comment">
           <h2>Comment</h2>
           <p><strong>Overall ratings and reviews</strong></p>
           <div style={{display: "flex", alignItems: "center"}}>
-            <Rating defaultValue={rating} precision={0.1} readOnly />
-            <p style={{marginLeft: "15px"}}>{rating} based on recent ratings</p>
+            <Rating defaultValue={overallRating} precision={0.1} readOnly />
+            <p style={{marginLeft: "15px"}}>{overallRating} based on recent ratings</p>
           </div>
           <div style={{display: "flex", flexDirection: "column", marginBottom: "20px"}}>
             <TextField
@@ -353,6 +347,7 @@ const Schedule = () => {
               onChange={handleCommentChange}
               sx={{margin: "20px 0", width: "40%"}}
             />
+
             <p><strong>Your rating</strong></p>
             <Rating
               name="half-rating"
@@ -372,7 +367,7 @@ const Schedule = () => {
 
           <div style={{marginBottom: "50px"}}>
             <h2>All Reviews</h2>
-            {reviewObjects.map((reviewObject, index) => (
+            {fetchedReviewList.map((reviewObject, index) => (
               <CustomerReview key={index} reviewObject={reviewObject} />
             ))}
             

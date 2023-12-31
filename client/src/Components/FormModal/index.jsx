@@ -1,11 +1,15 @@
 import Modal from '@mui/material/Modal';
 import TextField from '@mui/material/TextField';
+import { MenuItem } from '@mui/material';
 import Button from '@mui/material/Button';
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { format, parseISO } from 'date-fns';
 
 import "./FormModal.css";
 
-const FormModal = ({ onConfirm, onClose, modalTitle, formData, setFormData }) => {
+
+const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFormData }) => {
+  const [tempDate, setTempDate] = useState('')
   const handleFormChange = (fieldName, value) => {
     setFormData((prevFormData) => ({
       ...prevFormData,
@@ -13,29 +17,14 @@ const FormModal = ({ onConfirm, onClose, modalTitle, formData, setFormData }) =>
     }));
   };
 
-  const generateTimeOptions = () => {
-    const timeOptions = [];
-    let startTime = new Date();
-    startTime.setHours(9, 0, 0, 0);
-  
-    for (let i = 0; i < 24; i++) {
-      const hours = startTime.getHours();
-      const minutes = startTime.getMinutes();
-      const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-      timeOptions.push({ label: formattedTime, value: formattedTime });
-  
-      startTime.setMinutes(startTime.getMinutes() + 30);
-    }
-  
-    return timeOptions;
-  };
-  
-  const timeOptions = generateTimeOptions();
+  const handleDateChange = (e) => {
+    const rawDate = e.target.value; // Capture the date in 'yyyy-mm-dd' format
+    setTempDate(rawDate)
+    const formattedDate = format(parseISO(rawDate, 'yyyy-MM-dd', new Date()), 'dd/MM/yyyy'); // Format to 'dd/mm/yyyy'
 
-  const handleAdditionalValue = () => {
-    handleFormChange("Deposit", formData.People * 100000)
-    handleFormChange("TimeSlot", timeOptions.findIndex((option) => option.value === formData.Time) + 1);
-  }
+    handleFormChange('Date', formattedDate);
+  };
+
 
   const calculateMaxDate = () => {
     const maxDate = new Date();
@@ -58,165 +47,169 @@ const FormModal = ({ onConfirm, onClose, modalTitle, formData, setFormData }) =>
    const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false);
 
    const handleConfirm = () => {
-     // Open the confirmation modal
-     setConfirmationModalOpen(true);
-
-   };
+    // Check if required fields are filled before opening the confirmation modal
+    if (formData.FName && formData.Phone && formData.Date && formData.Time && formData.People && formData.tableNumber) {
+      // Open the confirmation modal
+      setConfirmationModalOpen(true);
+    } else {
+      // Display an alert if required fields are not filled
+      window.alert("Please fill in all required fields");
+    }
+  };
  
    const handleConfirmModalClose = () => {
      // Close the confirmation modal
      setConfirmationModalOpen(false);
    };
 
+   const handleConfirmModalAccept = () => {
+    handleConfirmModalClose();  
+    onConfirm();
+    onClose();
+   }
+
+   const handleConfirmModalDecline = () => {
+    handleConfirmModalClose(); 
+    onClose();
+   }
+
     return (
       <div className='form_modal'>
-      <Modal
+        <Modal
         open={true}
-        onClose={onClose}  // Set the onClose prop to the provided onClose function
-        disablebackdropclick="false" // Allow clicking outside the modal to close
+        onClose={onClose}
+        disablebackdropclick="false"
       >
         <div className="modal open">
           <h2 className="cancel">{modalTitle}</h2>
-        {/* Form Fields */}
-            <table >
-          <tbody>
-            <tr >
-              <td className="label_form">Full Name:</td>
-              <td>
-                <input
-                  className="input_form"
-                  type="text"
-                  id="FName"
-                  name="FName"
-                  value={formData.FName}
-                  onChange={(e) => handleFormChange("FName", e.target.value)}
-                />
-              </td>
-            </tr>
+          {/* Form Fields */}
+          <form style={{display:"flex", flexDirection:"column"}}>
+            <TextField
+              InputProps={{ className: "input_form" }}
+              label="Full Name"
+              type="text"
+              id="FName"
+              name="FName"
+              value={formData.FName}
+              onChange={(e) => handleFormChange("FName", e.target.value)}
+              required
+            />
 
-            <tr>
-              <td className="label_form">Phone:</td>
-              <td>
-                <input
-                  className="input_form"
-                  type="tel"
-                  id="Phone"
-                  name="Phone"
-                  value={formData.Phone}
-                  onChange={(e) => handleFormChange("Phone", e.target.value)}
-                />
-              </td>
-            </tr>
+            <TextField
+              InputProps={{ className: "input_form" }}
+              label="Phone"
+              type="tel"
+              id="Phone"
+              name="Phone"
+              value={formData.Phone}
+              onChange={(e) => handleFormChange("Phone", e.target.value)}
+              required
+            />
 
-            <tr>
-              <td className="label_form">Email:</td>
-              <td>
-                <input
-                  className="input_form"
-                  type="email"
-                  id="Email"
-                  name="Email"
-                  value={formData.Email}
-                  onChange={(e) => handleFormChange("Email", e.target.value)}
-                />
-              </td>
-            </tr>
+            <TextField
+              InputProps={{ className: "input_form" }}
+              label="Email"
+              type="email"
+              id="Email"
+              name="Email"
+              value={formData.Email}
+              onChange={(e) => handleFormChange("Email", e.target.value)}
+            />
 
-            <tr>
-              <td className="label_form">Date:</td>
-              <td>
-                <input
-                  className="input_form"
+            <TextField
+                  InputLabelProps={{ shrink: true, className: 'input_form_label' }}
+                  InputProps={{ className: 'input_form' }}
+                  label="Date"
                   type="date"
                   id="Date"
                   name="Date"
-                  value={formData.Date}
-                  onChange={(e) => handleFormChange("Date", e.target.value)}
-                  max={calculateMaxDate()} // Set the maximum date dynamically
-                  min={calculateMinDate()} // Set the minimum date dynamically
-                />
-              </td>
-            </tr>
-
-            <tr>
-              <td className="label_form">Time:</td>
-              <td>
-                <select
-                  className="input_form"
-                  id="Time"
-                  name="Time"
-                  value={formData.Time}
-                  onChange={(e) => handleFormChange("Time", e.target.value)}
-                >
-                  {timeOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </td>
-            </tr>
-
-            <tr>
-              <td className="label_form">Number of People:</td>
-              <td>
-                <input
-                  className="input_form"
-                  type="number"
-                  id="People"
-                  name="People"
-                  value={formData.People}
-                  onChange={(e) => {
-                    const value = parseInt(e.target.value, 10);
-                    // Check if the value is greater than 0 before updating the state
-                    if (value > 0) {
-                      handleFormChange("People", value);
-                    }
+                  value={tempDate}
+                  onChange={handleDateChange}
+                  inputProps={{
+                    max: calculateMaxDate(), // Set the maximum date dynamically
+                    min: calculateMinDate(), // Set the minimum date dynamically
                   }}
+                  required
                 />
-              </td>
-            </tr>
 
-            <tr>
-              <td className="label_form">Table number:</td>
-              <td>
-                <input
-                  className="input_form"
-                  type="number"
-                  id="tableNumber"
-                  name="tableNumber"
-                  value={formData.tableNumber}
-                  onChange={(e) => {
-                    const value = parseInt(e.target.value, 10);
-                    // Check if the value is greater than 0 before updating the state
-                    if (value > 0) {
-                      handleFormChange("tableNumber", value);
-                    }
-                  }}
-                />
-              </td>
-            </tr>
 
-            <tr>
-              <td className="label_form">Note:</td>
-              <td>
-                <textarea
-                  className="input_form"
-                  id="Note"
-                  name="Note"
-                  value={formData.Note}
-                  onChange={(e) => handleFormChange("Note", e.target.value)}
-                />
-              </td>
-            </tr>
-          </tbody>
-        </table>
+            
+            <TextField
+              InputProps={{ className: "input_form" }}
+              label="Time"
+              select
+              id="Time"
+              name="Time"
+              value={formData.Time}
+              onChange={(e) => handleFormChange("Time", e.target.value)}
+              required
+            >
+              {timeSlots.map((slot) => (
+                <MenuItem key={slot.start} value={slot.start}>
+                  {slot.start}
+                </MenuItem>
+              ))}
+            </TextField>
 
-        {/* Add other form fields similarly */}
-          <div className="Btn">
-          <button className="confirmBtn" onClick={handleConfirm}>Đồng ý</button>
-          <button className="cancelBtn" onClick={onClose}>Hủy bỏ</button>
-          </div>
+            <TextField
+              InputProps={{ className: "input_form" }}
+              label="Number of People"
+              type="number"
+              id="People"
+              name="People"
+              value={formData.People}
+              required
+              onChange={(e) => {
+                const value = parseInt(e.target.value, 10);
+                if (value > 0) {
+                  handleFormChange("People", value);
+                }
+              }}
+            />
+
+            <TextField
+              InputProps={{ className: "input_form" }}
+              label="Table number"
+              type="number"
+              id="tableNumber"
+              name="tableNumber"
+              value={formData.tableNumber}
+              onChange={(e) => {
+                const value = parseInt(e.target.value, 10);
+                if (value > 0) {
+                  handleFormChange("tableNumber", value);
+                }
+              }}
+              required
+            />
+
+            <TextField
+              InputProps={{ className: "input_form" }}
+              label="Note"
+              multiline
+              id="Note"
+              name="Note"
+              value={formData.Note}
+              onChange={(e) => handleFormChange("Note", e.target.value)}
+            />
+
+            <div className="Btn">
+              <Button
+                sx={{ mr: "20px" }}
+                variant="contained"
+                color="primary"
+                onClick={handleConfirm}
+                disabled={
+                  !(formData.FName && formData.Phone && formData.Date && formData.Time && formData.People && formData.tableNumber)
+                }
+              >
+                Đồng ý
+              </Button>
+              <Button variant="contained" color="error" onClick={onClose}>
+                Hủy bỏ
+              </Button>
+            </div>
+          </form>
         </div>
       </Modal>
       {/* Confirmation Modal */}
@@ -237,8 +230,9 @@ const FormModal = ({ onConfirm, onClose, modalTitle, formData, setFormData }) =>
           {/* ... (display other form fields similarly) */}
           <div className="Btn">
             {/* Perform the actual confirmation action */}
-            <button className="confirmBtn" onClick={() => { onConfirm(); handleAdditionalValue(); handleConfirmModalClose(); }}>Confirm</button>
-            <button className="cancelBtn" onClick={() => {handleConfirmModalClose(); onClose();}}>Cancel</button>
+            {/* <button className="confirmBtn" onClick={() => {handleAdditionalValue(); onConfirm(); handleConfirmModalClose(); onClose()}}>Confirm</button> */}
+            <button className="confirmBtn" onClick={handleConfirmModalAccept}>Confirm</button>
+            <button className="cancelBtn" onClick={handleConfirmModalDecline}>Cancel</button>
           </div>
         </div>
       </Modal>

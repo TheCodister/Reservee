@@ -5,22 +5,16 @@ import "react-datepicker/dist/react-datepicker.css";
 import "./CalendarButton.css";
 
 const CalendarButton = ({selectedDate, handleSelectedDate, setSelectedDate}) => {
-  useEffect(() => {
-    // Set the default selected date to the current date when the component mounts
-    setSelectedDate(new Date());
-    
-  }, []); // Empty dependency array ensures this effect runs only once
-
+  const [currentDate, setCurrentDate] = useState(new Date())
   const maxDate = new Date();
   maxDate.setDate(maxDate.getDate() + 7); // Set maxDate to 7 days from the current date
-
   return (
     <div>
       <DatePicker
-        selected={selectedDate}
-        onChange={(date) => handleSelectedDate(date)}
+        selected={currentDate}
+        onChange={(date) => {handleSelectedDate(date); setCurrentDate(date)}}
         customInput={<CustomDatePickerInput />}
-        placeholderText={<CustomData value={selectedDate} />}
+        placeholderText={<CustomData value={currentDate} />}
         dateFormat="dd/MM/yyyy"
         minDate={new Date()} // Set the minimum selectable date to the current date
         maxDate={maxDate} // Set the maximum selectable date to 7 days from the current date
