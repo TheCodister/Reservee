@@ -227,11 +227,7 @@ const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFor
           <p>Note: {formData.Note}</p>
           <p>Deposit: {formData.People * 100000} vnđ</p>
           <p>Status: Create at time by user...</p>
-          {/* ... (display other form fields similarly) */}
           <div className="Btn">
-            {/* Perform the actual confirmation action */}
-            {/* <button className="confirmBtn" onClick={() => {handleAdditionalValue(); onConfirm(); handleConfirmModalClose(); onClose()}}>Confirm</button> */}
-            <button className="confirmBtn" onClick={handleConfirmModalAccept}>Confirm</button>
             <button className="cancelBtn" onClick={handleConfirmModalDecline}>Cancel</button>
           </div>
         </div>

@@ -11,7 +11,7 @@ import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
 import { IconButton, Rating, TextField } from "@mui/material";
 
 
-
+// Generate reserve table for view
 const TimeTable = ({reserveList, numOfTable, timeSlots}) => {
   console.log("Timetable",reserveList)
   const [currentPage, setCurrentPage] = useState(0);
@@ -77,6 +77,7 @@ reserveList.forEach((reserve) => {
   );
 };
 
+// Customer review component
 const CustomerReview = ({reviewObject}) => {
   const formattedDate = reviewObject.reviewDate.toLocaleDateString('en-US', {
     month: 'long',
@@ -130,19 +131,18 @@ const Schedule = (props) => {
     Deposit: 0,
     TimeSlot: 0
   })
-
-
   //end fetched data from db 
+
 
   // data for current session 
 
-  
-  // selected date for display reservation
-  
+  // selected date for display corresponding table reservation
   const [selectedDate, setSelectedDate] = useState(new Date().toLocaleDateString("en-GB")); 
-console.log("SD", selectedDate)
+
+  // Reservation for selected date (table view change based on this list)
   const [reservationsForSelectedDate, setReservation] = useState(reserveList.filter((formData) => formData.Date === selectedDate));
 
+  // Other things, does not really matter
   const [isTruncate, setIsTruncate] = useState(true);
   const [moreOrLess, setMoreOrLess] = useState(true);
   const [displayError, setDisplayError] = useState(false);
@@ -154,50 +154,20 @@ console.log("SD", selectedDate)
     if (reviews.length === 0) {
       return 0; // Return 0 if there are no reviews
     }
-  
     const totalRating = reviews.reduce((sum, review) => sum + review.reviewRating, 0);
     return totalRating / reviews.length; // Calculate average rating
   };
 
   const overallRating = calculateOverallRating(fetchedReviewList);
-  
- 
 
   const updateTruncate = () => {
     setIsTruncate(!isTruncate);
     setMoreOrLess(!moreOrLess);
   }
 
+  // Create button on click
   const handleCreateButtonClick = () => {
     setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setFormData({
-      CustomerID: 0,
-      ReserveID: 0,
-      FName:'',
-      Phone:'',
-      Email:'',
-      Date:'',
-      Time: '',
-      People: 1,
-      tableNumber: 1,
-      Note: '',
-      Deposit: 0,
-      TimeSlot: 0
-    });
-
-    setIsModalOpen(false);
-  };
-
-  
-  const handleCommentChange = (event) => {
-    setUserComment(event.target.value);
-  };
-
-  const handleRatingChange = (newValue) => {
-    setUserRating(newValue);
   };
 
   const handleReviewButton = () => {
@@ -216,7 +186,37 @@ console.log("SD", selectedDate)
       setDisplayError(false);
     }
   }
+
+  const handleCommentChange = (event) => {
+    setUserComment(event.target.value);
+  };
+
+  const handleRatingChange = (newValue) => {
+    setUserRating(newValue);
+  };
+
+  // Close modal -> set form data to initial value
+  const handleCloseModal = () => {
+    setFormData({
+      CustomerID: 0,
+      ReserveID: 0,
+      FName:'',
+      Phone:'',
+      Email:'',
+      Date:'',
+      Time: '',
+      People: 1,
+      tableNumber: 1,
+      Note: '',
+      Deposit: 0,
+      TimeSlot: 0
+    });
+
+    setIsModalOpen(false);
+  };
+  
   // Generate an array of time slots from 9:00 to 21:00 with 30-minute intervals
+  // Format: timeSlots = [{start: "09:00", end: "9:30"}, {...}]
   const generateTimeSlots = () => {
     const startTime = new Date();
     startTime.setHours(9, 0, 0); // Set start time to 9:00
@@ -254,7 +254,8 @@ console.log("SD", selectedDate)
    setReservation(reserveList.filter((formData) => formData.Date === formattedDate))
 
  }
-
+ 
+ // handle reserve confirm modal 
   const handleConfirmModal = () => {
     const newFormData = {
       ...formData,
@@ -268,19 +269,10 @@ console.log("SD", selectedDate)
     setIsModalOpen(false);
   };
 
+  // Set new value for reservationsForSelectedDate whenever reserveList change
   useEffect(() => {
     setReservation(reserveList.filter((formData) => formData.Date === selectedDate))
   }, [reserveList]);
-    
-  useEffect(()=>{
-    console.log("RL",reserveList)
-  }, [reserveList])
-  
-  useEffect(()=>{
-    console.log("RRL",reservationsForSelectedDate)
-  }, [reservationsForSelectedDate])
-
-
 
   return (
     <div className="schedule">
