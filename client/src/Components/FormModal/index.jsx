@@ -8,13 +8,32 @@ import { format, parseISO } from 'date-fns';
 import "./FormModal.css";
 
 
-const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFormData }) => {
+const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFormData, selectedDate, reserveList }) => {
+  console.log(selectedDate);
+  const [reservationsForSelectedDate, setReservation] = useState(reserveList);
+  const [phoneError, setPhoneError] = useState(false);
+  const [tableError, setTableError] = useState(false);
+  const [tableInUsed, setTableInUsed] = useState(false);
   const [tempDate, setTempDate] = useState('')
   const handleFormChange = (fieldName, value) => {
     setFormData((prevFormData) => ({
       ...prevFormData,
       [fieldName]: value,
     }));
+
+    if(fieldName === 'Date') {
+      if(value != '' && formData.Time != '') {
+        setTableError(false);
+      }
+    }
+    if(fieldName === 'Time') {
+      if(value != '' && formData.Date != '') {
+        setTableError(false);
+      }
+    }
+    if(formData.Date != '' && formData.Time != '' && (fieldName === 'Date' || fieldName === 'Time' || fieldName === 'tableNumber')) {
+      validateReservation();
+    }
   };
 
   const handleDateChange = (e) => {
@@ -23,6 +42,57 @@ const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFor
     const formattedDate = format(parseISO(rawDate, 'yyyy-MM-dd', new Date()), 'dd/MM/yyyy'); // Format to 'dd/mm/yyyy'
 
     handleFormChange('Date', formattedDate);
+  };
+
+  const handletableNumberChange = (e) => {
+    if(formData.Date === '' || formData.Time === '') {
+      setTableError(true);
+    }
+    else {
+      // console.log("current table: ", e);
+      // setReservation(reserveList.filter(
+      //   (Reserve) => 
+      //     Reserve.Date === formData.Date && 
+      //     Reserve.Time === formData.Time && 
+      //     Reserve.tableNumber === e
+      //   ));
+      // console.log("current form: ", formData);
+      // console.log("Table in use: ", reservationsForSelectedDate);
+      // if(reservationsForSelectedDate.length != 0) {
+      //   setTableInUsed(true);
+      // }
+      // else {
+      //   setTableInUsed(false);
+      // }
+      setTableError(false);
+    }
+
+    handleFormChange('tableNumber', e);
+    console.log("after current form: ", formData);
+  };
+
+  useEffect(() => {
+    console.log("current table: ", formData);
+    setReservation(reserveList.filter(
+      (Reserve) => 
+        Reserve.Date === formData.Date && 
+        Reserve.Time === formData.Time && 
+        Reserve.tableNumber === formData.tableNumber
+      ));
+      console.log("Table in use: ", reservationsForSelectedDate);
+  }, [reserveList]);
+
+  const validateReservation = () => {
+    console.log("current table: ", formData);
+
+      console.log("current form: ", formData);
+      console.log("Table in use: ", reservationsForSelectedDate);
+      if(reservationsForSelectedDate.length != 0) {
+        setTableInUsed(true);
+      }
+      else {
+        setTableInUsed(false);
+      }
   };
 
 
@@ -102,8 +172,14 @@ const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFor
               id="Phone"
               name="Phone"
               value={formData.Phone}
-              onChange={(e) => handleFormChange("Phone", e.target.value)}
+              onChange={(e) => {
+                handleFormChange("Phone", e.target.value);
+                const isValidPhone = /^\d{10}$/.test(e.target.value);
+                setPhoneError(!isValidPhone);
+              }}
               required
+              error={phoneError}
+              helperText={phoneError ? 'Invalid phone number' : ''}
             />
 
             <TextField
@@ -161,7 +237,7 @@ const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFor
               required
               onChange={(e) => {
                 const value = parseInt(e.target.value, 10);
-                if (value > 0) {
+                if (value > 0 & value <= 4) {
                   handleFormChange("People", value);
                 }
               }}
@@ -176,11 +252,18 @@ const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFor
               value={formData.tableNumber}
               onChange={(e) => {
                 const value = parseInt(e.target.value, 10);
-                if (value > 0) {
-                  handleFormChange("tableNumber", value);
+                if (value > 0 & value <= 8) {
+                  handletableNumberChange(value);
                 }
               }}
               required
+              error={tableError || tableInUsed}
+              helperText={tableError
+                ? 'Please specify date and time first'
+                : tableInUsed
+                ? 'Table already in use'
+                : ''
+              }
             />
 
             <TextField
@@ -200,7 +283,8 @@ const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFor
                 color="primary"
                 onClick={handleConfirm}
                 disabled={
-                  !(formData.FName && formData.Phone && formData.Date && formData.Time && formData.People && formData.tableNumber)
+                  !(formData.FName && formData.Phone && formData.Date && formData.Time && formData.People && formData.tableNumber 
+                    && !phoneError && !tableError)
                 }
               >
                 Đồng ý

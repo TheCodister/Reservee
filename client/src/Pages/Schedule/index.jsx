@@ -317,6 +317,8 @@ const Schedule = (props) => {
             formData={formData}
             timeSlots={timeSlots}
             setFormData={setFormData}
+            selectedDate={selectedDate}
+            reserveList={reserveList}
           />
         }
       
