@@ -10,7 +10,7 @@ import "./FormModal.css";
 
 const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFormData, selectedDate, reserveList }) => {
   console.log(selectedDate);
-  const [reservationsForSelectedDate, setReservation] = useState(reserveList);
+  const [reservationsForDaT, setReservation] = useState([]);
   const [phoneError, setPhoneError] = useState(false);
   const [tableError, setTableError] = useState(false);
   const [tableInUsed, setTableInUsed] = useState(false);
@@ -31,9 +31,6 @@ const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFor
         setTableError(false);
       }
     }
-    if(formData.Date != '' && formData.Time != '' && (fieldName === 'Date' || fieldName === 'Time' || fieldName === 'tableNumber')) {
-      validateReservation();
-    }
   };
 
   const handleDateChange = (e) => {
@@ -49,21 +46,6 @@ const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFor
       setTableError(true);
     }
     else {
-      // console.log("current table: ", e);
-      // setReservation(reserveList.filter(
-      //   (Reserve) => 
-      //     Reserve.Date === formData.Date && 
-      //     Reserve.Time === formData.Time && 
-      //     Reserve.tableNumber === e
-      //   ));
-      // console.log("current form: ", formData);
-      // console.log("Table in use: ", reservationsForSelectedDate);
-      // if(reservationsForSelectedDate.length != 0) {
-      //   setTableInUsed(true);
-      // }
-      // else {
-      //   setTableInUsed(false);
-      // }
       setTableError(false);
     }
 
@@ -73,27 +55,26 @@ const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFor
 
   useEffect(() => {
     console.log("current table: ", formData);
+    if(formData.Date != '' && formData.Time != '') {
     setReservation(reserveList.filter(
       (Reserve) => 
         Reserve.Date === formData.Date && 
         Reserve.Time === formData.Time && 
         Reserve.tableNumber === formData.tableNumber
       ));
-      console.log("Table in use: ", reservationsForSelectedDate);
-  }, [reserveList]);
+    }
+  }, [formData.Date, formData.Time, formData.tableNumber]);
 
-  const validateReservation = () => {
-    console.log("current table: ", formData);
-
-      console.log("current form: ", formData);
-      console.log("Table in use: ", reservationsForSelectedDate);
-      if(reservationsForSelectedDate.length != 0) {
+  useEffect(() => {
+      console.log("Table in use: ", reservationsForDaT);
+      if(reservationsForDaT.length != 0) {
         setTableInUsed(true);
       }
       else {
         setTableInUsed(false);
       }
-  };
+    
+  }, [reservationsForDaT]);
 
 
   const calculateMaxDate = () => {
@@ -312,6 +293,7 @@ const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFor
           <p>Deposit: {formData.People * 100000} vnđ</p>
           <p>Status: Create at time by user...</p>
           <div className="Btn">
+            <button className="confirmBtn" onClick={handleConfirmModalAccept}>Confirm</button>
             <button className="cancelBtn" onClick={handleConfirmModalDecline}>Cancel</button>
           </div>
         </div>
