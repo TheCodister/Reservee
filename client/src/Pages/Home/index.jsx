@@ -48,6 +48,9 @@ const Home = (props) => {
             <div className="home-menu-item-table">
               <h2>Total table: {result.totalTable}</h2>
               <h2>Table remain: {result.totalRemain}</h2>
+              <h2>
+                Open time: <br></br> 9:00 - 21:00
+              </h2>
             </div>
           </div>
         ))}

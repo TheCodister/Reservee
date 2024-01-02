@@ -1,7 +1,6 @@
 // routes/restaurantRoutes.js
 const express = require('express');
-const models = require('../models'); // Adjust the path based on your folder structure
-
+const models = require('../models'); 
 const router = express.Router();
 const restaurantModel = models.restaurantModel;
 
@@ -37,6 +36,29 @@ router.post('/', (req, res) => {
       }
       res.json({ id: this.lastID, photo_url, name, cuisine, address, phone_number, seat_capacity });
     }
+  );
+});
+
+// API endpoint to get a reservation by restaurant ID
+router.get('/:restaurant_id', (req, res) => {
+  const restaurant_id = req.params.restaurant_id;
+
+  reservationModel.all(
+      `
+      SELECT *
+      FROM restaurant
+      WHERE id = ?
+  `,
+      [restaurant_id],
+      (err, rows) => {
+      if (err) {
+          console.error(err);
+          res.status(500).json({ error: 'Internal Server Error' });
+          return;
+      }
+
+      res.json({ restaurants: rows });
+      }
   );
 });
 
