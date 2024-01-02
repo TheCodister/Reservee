@@ -39,6 +39,29 @@ router.post('/', (req, res) => {
   );
 });
 
+// API endpoint to get a reservation by restaurant ID
+router.get('/:restaurant_id', (req, res) => {
+  const restaurant_id = req.params.restaurant_id;
+
+  reservationModel.all(
+      `
+      SELECT *
+      FROM restaurant
+      WHERE id = ?
+  `,
+      [restaurant_id],
+      (err, rows) => {
+      if (err) {
+          console.error(err);
+          res.status(500).json({ error: 'Internal Server Error' });
+          return;
+      }
+
+      res.json({ restaurants: rows });
+      }
+  );
+});
+
 router.get('/search', (req, res) => {
   const keyword = req.query.keyword;
 
