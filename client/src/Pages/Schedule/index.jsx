@@ -110,6 +110,8 @@ const Schedule = (props) => {
   const {fetchedReserveList, fetchedReviewList, addReserveRecord, addReviewRecord} = props
   const { restaurant_id } = useParams();
   const [ restaurant, setRestaurant ] = useState();
+  const [ resReserveList, setResReserveList ] = useState([]);
+  const [ resReviewList, setResReviewList ] = useState([]);
 
   const fetchRestaurant = async () => {
     const url = `http://localhost:3000/restaurants/${restaurant_id}`;
@@ -129,9 +131,55 @@ const Schedule = (props) => {
     }
   };
 
+  const fetchResReserveList = async () => {
+    const url = `http://localhost:3000/reservations/restaurant/${restaurant_id}`;
+
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("reservations", data.reservations)
+        setResReserveList(data.reservations);
+      } else {
+        console.error('Failed to fetch reservations:', response.status);
+      }
+    } catch (error) {
+      console.error('Error fetching reservations:', error.message);
+    }
+  };
+
+  const fetchResReviewList = async () => {
+    const url = `http://localhost:3000/ratings/restaurant/${restaurant_id}`;
+
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("ratings", data)
+        setResReviewList(data);
+      } else {
+        console.error('Failed to fetch ratings:', response.status);
+      }
+    } catch (error) {
+      console.error('Error fetching ratings:', error.message);
+    }
+  };
+
   useEffect(() => {
-    // Fetch all restaurants initially
+    // Fetch all restaurant initially
     fetchRestaurant();
+  }, []);
+
+  useEffect(() => {
+    // Fetch all reserve initially
+    fetchResReserveList();
+  }, []);
+
+  useEffect(() => {
+    // Fetch all review initially
+    fetchResReviewList();
   }, []);
 
   const userName = "Peter"
@@ -304,7 +352,7 @@ const Schedule = (props) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ customer_id: formData.CustomerID, restaurant_id: restaurant_id, date: formData.Date,
-                                time: formData.Time, timeslot: formData.TimeSlot, email: formData.Email,
+                                time: formData.Time, timeslot: newFormData.TimeSlot, fname: formData.FName , email: formData.Email,
                                 phone_number: formData.Phone, number_of_seats: formData.People, note: formData.Note }),
       });
 
