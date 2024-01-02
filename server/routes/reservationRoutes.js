@@ -17,7 +17,7 @@ router.get('/', (req, res) => {
 
 // API endpoint to add a new reservation by customer_id, restaurant_id, date, time, number_of_seats
 router.post('/reserve', (req, res) => {
-    const { customer_id, restaurant_id, date, time, timeslot, email, phone_number, number_of_seats, note } = req.body;
+    const { customer_id, restaurant_id, date, time, timeslot, fname, email, phone_number, number_of_seats, note } = req.body;
   
     // Check seat availability
     const startTime = time;
@@ -42,10 +42,10 @@ router.post('/reserve', (req, res) => {
           // Reservation is possible, insert into the database
           reservationModel.run(
             `
-            INSERT INTO reservation (customer_id, restaurant_id, date, time, timeslot, email, phone_number, seat_number, note)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO reservation (customer_id, restaurant_id, date, time, timeslot, fname, email, phone_number, seat_number, note)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
           `,
-            [customer_id, restaurant_id, date, time, timeslot, email, phone_number, number_of_seats, note],
+            [customer_id, restaurant_id, date, time, timeslot, fname, email, phone_number, number_of_seats, note],
             (err) => {
               if (err) {
                 console.error(err);
@@ -180,7 +180,7 @@ router.delete('/:reservation_id', (req, res) => {
 // API endpoint to update the information of a reservation by ID
 router.put('/infos/:reservation_id', (req, res) => {
   const reservation_id = req.params.reservation_id;
-  const { email, phone_number, note } = req.body;
+  const { fname, email, phone_number, note } = req.body;
 
   reservationModel.get(
     `
@@ -204,10 +204,10 @@ router.put('/infos/:reservation_id', (req, res) => {
       reservationModel.run(
         `
         UPDATE reservation
-        SET email = ?, phone_number = ?, note = ?
+        SET fname = ?, email = ?, phone_number = ?, note = ?
         WHERE id = ?
       `,
-        [email, phone_number, note, reservation_id],
+        [fname, email, phone_number, note, reservation_id],
         (err) => {
           if (err) {
             console.error(err);
