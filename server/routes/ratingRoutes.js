@@ -64,6 +64,35 @@ router.get('/:id', (req, res) => {
     });
 });
 
+
+/**
+ * 
+ */
+router.get('/restaurant/:id', (req, res) => {
+    const restaurantId = req.params.id;
+
+    if (!restaurantId) {
+        res.status(500).json({ error: "ID not valid!" });
+        return;
+    }
+
+    const sql = "SELECT * FROM rating WHERE rating.reservation_id IN (SELECT reservation.id FROM reservation WHERE reservation.restaurant_id = ?)";
+
+    reservationModel.all(sql, [restaurantId], (err, ratings) => {
+        if (err) {
+            // If there's an error executing the query, return an error message
+            res.status(500).json({ error: "Error retrieving restaurant ratings" });
+        } else if (ratings.length === 0) {
+            // If no ratings are found for the user, return a not found message
+            res.status(404).json({ error: "No ratings found for restaurant" });
+        } else {
+            // If ratings are found, return them in the response
+            res.json(ratings);
+        }
+    });
+}) 
+
+
 /**
  * Save new rating, automatically set date and time to current date time, format "DD-MM-YYYY" and "HH:MM"
  */
