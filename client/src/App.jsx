@@ -142,7 +142,7 @@ function App() {
           <Routes>
             <Route exact path="/" element={<Home data={dummyData} />} />
             <Route path="/History" element={<History />} />
-            <Route path="/Schedule" element={<Schedule fetchedReserveList={fetchedReserveList} fetchedReviewList={fetchedReviewList} addReserveRecord={addReserveRecord} addReviewRecord={addReviewRecord}/>} />
+            <Route path="/Schedule/:restaurant_id" element={<Schedule fetchedReserveList={fetchedReserveList} fetchedReviewList={fetchedReviewList} addReserveRecord={addReserveRecord} addReviewRecord={addReviewRecord}/>} />
             <Route path="/APIsExample" element={<APIsExample />} />
           </Routes>
         </div>

@@ -1,6 +1,6 @@
 import "./Schedule.css";
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { CalendarButton } from "../../Components";
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import { FormModal } from "../../Components";
@@ -108,13 +108,45 @@ const CustomerReview = ({reviewObject}) => {
 const Schedule = (props) => {
   // fetched data from db
   const {fetchedReserveList, fetchedReviewList, addReserveRecord, addReviewRecord} = props
-  
+  const { restaurant_id } = useParams();
+  const [ restaurant, setRestaurant ] = useState();
+
+  const fetchRestaurant = async () => {
+    const url = `http://localhost:3000/restaurants/${restaurant_id}`;
+
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("restaurant", data.restaurants)
+        setRestaurant(data.restaurants[0]);
+      } else {
+        console.error('Failed to fetch restaurants:', response.status);
+      }
+    } catch (error) {
+      console.error('Error fetching restaurants:', error.message);
+    }
+  };
+
+  useEffect(() => {
+    // Fetch all restaurants initially
+    fetchRestaurant();
+  }, []);
+
   const userName = "Peter"
   const numOfTable = 8;
-  const restaurantName = "Phở Hậu";
-  const restaurantAddress = "Số 250, đường Thành Công, Quận 1, TPHCM";
+  const [ restaurantName, setRestaurantName ] = useState("");
+  const [ restaurantAddress, setRestaurantAddress ] = useState("");
   const restaurantDescription = "A path from a point approximately 330 metres east of the most south westerly corner of 17 Batherton Close, Widnes and approximately 208 metres east-south-east of the most southerly corner of Unit 3 Foundry Industrial Estate, Victoria Street, Widnes, proceeding in a generally east-north-easterly direction for approximately 28 metres to a point approximately 202 metres east-south-east of the most south-easterly corner of Unit 4 Foundry Industrial Estate, Victoria Street, and approximately 347 metres east of the most south-easterly corner of 17 Batherton Close, then proceeding in a generally northerly direction for approximately 21 metres to a point approximately 210 metres east of the most south-easterly corner of Unit 5 Foundry Industrial Estate, Victoria Street, and approximately 202 metres east-south-east of the most north-easterly corner of Unit 4 Foundry Industrial Estate, Victoria Street, then proceeding in a generally east-north-east direction for approximately 64 metres to a point approximately 282 metres east-south-east of the most easterly corner of Unit 2 Foundry Industrial Estate, Victoria Street, Widnes and approximately 259 metres east of the most southerly corner of Unit 4 Foundry Industrial Estate, Victoria Street, then proceeding in a generally east-north-east direction for approximately 350 metres to a point approximately 3 metres west-north-west of the most north westerly corner of the boundary fence of the scrap metal yard on the south side of Cornubia Road, Widnes, and approximately 47 metres west-south-west of the stub end of Cornubia Road be diverted to a 3 metre wide path from a point";
   
+  useEffect(() => {
+    if(restaurant) {
+      setRestaurantName(restaurant.name);
+      setRestaurantAddress(restaurant.address);
+    }
+  }, [restaurant]);
+
   const [reserveList, setReserveList] = useState(fetchedReserveList)
 
   const [formData, setFormData]= useState({
@@ -256,7 +288,7 @@ const Schedule = (props) => {
  }
  
  // handle reserve confirm modal 
-  const handleConfirmModal = () => {
+  const handleConfirmModal = async () => {
     const newFormData = {
       ...formData,
       Deposit: formData.People * 100000,
@@ -264,6 +296,26 @@ const Schedule = (props) => {
     };
 
     const updatedReserveList = [...fetchedReserveList, newFormData];
+    try {
+      // Send a POST request to add a new reserve
+      const response = await fetch('http://localhost:3000/reservations/reserve', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ customer_id: formData.CustomerID, restaurant_id: restaurant_id, date: formData.Date,
+                                time: formData.Time, timeslot: formData.TimeSlot, email: formData.Email,
+                                phone_number: formData.Phone, number_of_seats: formData.People, note: formData.Note }),
+      });
+
+      if (response.ok) {
+        console.log('Reservation added successfully!');
+      } else {
+        console.error('Failed to add Reservation:', response.status);
+      }
+    } catch (error) {
+      console.error('Error adding Reservation:', error.message);
+    }
     setReserveList(updatedReserveList);
     addReserveRecord(newFormData);
     setIsModalOpen(false);

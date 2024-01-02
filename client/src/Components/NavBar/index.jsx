@@ -19,7 +19,7 @@ const NavBar = () => {
           </div>
         </Link>
 
-        <Link to="/Schedule">
+        <Link to="/Schedule/1">
           <div className="navbar-butt">
             <img src="./Images/chart.png" alt="Icon" />
             <p>Schedule</p>

@@ -43,7 +43,7 @@ router.post('/', (req, res) => {
 router.get('/:restaurant_id', (req, res) => {
   const restaurant_id = req.params.restaurant_id;
 
-  reservationModel.all(
+  restaurantModel.all(
       `
       SELECT *
       FROM restaurant
