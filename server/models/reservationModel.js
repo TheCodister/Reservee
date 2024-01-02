@@ -10,6 +10,7 @@ db.serialize(() => {
         date TEXT,
         time TEXT,
         timeslot INTEGER,
+        fname VARCHAR(50),
         email VARCHAR(50),
         phone_number VARCHAR(15),
         seat_number INTEGER,
