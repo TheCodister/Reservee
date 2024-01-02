@@ -9,7 +9,6 @@ import "./FormModal.css";
 
 
 const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFormData, selectedDate, reserveList }) => {
-  console.log(selectedDate);
   const [reservationsForDaT, setReservation] = useState([]);
   const [phoneError, setPhoneError] = useState(false);
   const [tableError, setTableError] = useState(false);
@@ -50,11 +49,9 @@ const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFor
     }
 
     handleFormChange('tableNumber', e);
-    console.log("after current form: ", formData);
   };
 
   useEffect(() => {
-    console.log("current table: ", formData);
     if(formData.Date != '' && formData.Time != '') {
     setReservation(reserveList.filter(
       (Reserve) => 
@@ -66,7 +63,6 @@ const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFor
   }, [formData.Date, formData.Time, formData.tableNumber]);
 
   useEffect(() => {
-      console.log("Table in use: ", reservationsForDaT);
       if(reservationsForDaT.length != 0) {
         setTableInUsed(true);
       }

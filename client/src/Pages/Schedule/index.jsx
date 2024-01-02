@@ -13,7 +13,6 @@ import { IconButton, Rating, TextField } from "@mui/material";
 
 // Generate reserve table for view
 const TimeTable = ({reserveList, numOfTable, timeSlots}) => {
-  console.log("Timetable",reserveList)
   const [currentPage, setCurrentPage] = useState(0);
 
   const itemsPerPage = 6;
@@ -136,14 +135,19 @@ const Schedule = (props) => {
 
   const userName = "Peter"
   const numOfTable = 8;
-  const [ restaurantName, setRestaurantName ] = useState("");
-  const [ restaurantAddress, setRestaurantAddress ] = useState("");
-  const restaurantDescription = "A path from a point approximately 330 metres east of the most south westerly corner of 17 Batherton Close, Widnes and approximately 208 metres east-south-east of the most southerly corner of Unit 3 Foundry Industrial Estate, Victoria Street, Widnes, proceeding in a generally east-north-easterly direction for approximately 28 metres to a point approximately 202 metres east-south-east of the most south-easterly corner of Unit 4 Foundry Industrial Estate, Victoria Street, and approximately 347 metres east of the most south-easterly corner of 17 Batherton Close, then proceeding in a generally northerly direction for approximately 21 metres to a point approximately 210 metres east of the most south-easterly corner of Unit 5 Foundry Industrial Estate, Victoria Street, and approximately 202 metres east-south-east of the most north-easterly corner of Unit 4 Foundry Industrial Estate, Victoria Street, then proceeding in a generally east-north-east direction for approximately 64 metres to a point approximately 282 metres east-south-east of the most easterly corner of Unit 2 Foundry Industrial Estate, Victoria Street, Widnes and approximately 259 metres east of the most southerly corner of Unit 4 Foundry Industrial Estate, Victoria Street, then proceeding in a generally east-north-east direction for approximately 350 metres to a point approximately 3 metres west-north-west of the most north westerly corner of the boundary fence of the scrap metal yard on the south side of Cornubia Road, Widnes, and approximately 47 metres west-south-west of the stub end of Cornubia Road be diverted to a 3 metre wide path from a point";
+  const [ restaurantName, setRestaurantName ] = useState(null);
+  const [ restaurantAddress, setRestaurantAddress ] = useState(null);
+  const [ cuisine, setCuisine ] = useState(null);
+  const [ phoneNumber, setPhoneNumber ] = useState(null);
+  const [ seatCapacity, setSeatCapaciry ] = useState(null);
   
   useEffect(() => {
     if(restaurant) {
       setRestaurantName(restaurant.name);
       setRestaurantAddress(restaurant.address);
+      setCuisine(restaurant.cuisine);
+      setPhoneNumber(restaurant.phone_number);
+      setSeatCapaciry(restaurant.seat_capacity);
     }
   }, [restaurant]);
 
@@ -175,12 +179,7 @@ const Schedule = (props) => {
   const [reservationsForSelectedDate, setReservation] = useState(reserveList.filter((formData) => formData.Date === selectedDate));
 
   // Other things, does not really matter
-  const [isTruncate, setIsTruncate] = useState(true);
-  const [moreOrLess, setMoreOrLess] = useState(true);
-  const [displayError, setDisplayError] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [userComment, setUserComment] = useState("");
-  const [userRating, setUserRating] = useState(0);
 
   const calculateOverallRating = (reviews) => {
     if (reviews.length === 0) {
@@ -192,39 +191,10 @@ const Schedule = (props) => {
 
   const overallRating = calculateOverallRating(fetchedReviewList);
 
-  const updateTruncate = () => {
-    setIsTruncate(!isTruncate);
-    setMoreOrLess(!moreOrLess);
-  }
 
   // Create button on click
   const handleCreateButtonClick = () => {
     setIsModalOpen(true);
-  };
-
-  const handleReviewButton = () => {
-    if (userComment == "" || userRating == 0) {
-      setDisplayError(true);
-    }
-    else {
-      addReviewRecord(
-        {reviewDate: new Date(),
-          reviewName: userName,
-          reviewDetail: userComment,
-          reviewRating: userRating,}
-      )
-      setUserComment("")
-      setUserRating(0)
-      setDisplayError(false);
-    }
-  }
-
-  const handleCommentChange = (event) => {
-    setUserComment(event.target.value);
-  };
-
-  const handleRatingChange = (newValue) => {
-    setUserRating(newValue);
   };
 
   // Close modal -> set form data to initial value
@@ -326,6 +296,7 @@ const Schedule = (props) => {
     setReservation(reserveList.filter((formData) => formData.Date === selectedDate))
   }, [reserveList]);
 
+
   return (
     <div className="schedule">
       <div className="headerRestaurant">
@@ -337,12 +308,10 @@ const Schedule = (props) => {
       <div className="reservation">
         <div className="restaurantInfo">
           <h2>{restaurantName}</h2>
-          <p>{restaurantAddress}</p>
-          <p className={isTruncate ? 'truncateText' : 'normalText'}>
-            {restaurantDescription}
-          </p>
-          <p onClick={updateTruncate} className={moreOrLess ? 'displayText' : 'noText'}>Read More</p>
-          <p onClick={updateTruncate} className={!moreOrLess ? 'displayText' : 'noText'}>Read Less</p>
+          <p>Address: {restaurantAddress}</p>
+          <p>Main dishes: {cuisine}</p>
+          <p>Phone number: {phoneNumber}</p>
+          <p>Seat capacity: {seatCapacity}</p>
         </div>
 
         <div className="reserveCreate">
@@ -383,33 +352,7 @@ const Schedule = (props) => {
             <Rating defaultValue={overallRating} precision={0.1} readOnly />
             <p style={{marginLeft: "15px"}}>{overallRating} based on recent ratings</p>
           </div>
-          <div style={{display: "flex", flexDirection: "column", marginBottom: "20px"}}>
-            <TextField
-              id="outlined-textarea"
-              label=""
-              placeholder="Your comment ..."
-              multiline
-              value={userComment}
-              onChange={handleCommentChange}
-              sx={{margin: "20px 0", width: "40%"}}
-            />
-
-            <p><strong>Your rating</strong></p>
-            <Rating
-              name="half-rating"
-              value={userRating}
-              precision={0.5}
-              onChange={(event, newValue) => handleRatingChange(newValue)}
-              sx={{ width: 'fit-content' }}
-            />
-            <div className="sendingReview">
-              <Button onClick={handleReviewButton} sx={{width: "fit-content", mr: "10px"}} variant="contained">Send</Button>
-              {displayError === true && (
-                <p>* Please comment and rate before sending</p>
-              )}
-            </div>
-            
-          </div>
+         
 
           <div style={{marginBottom: "50px"}}>
             <h2>All Reviews</h2>
