@@ -8,11 +8,9 @@ import { format, parseISO } from 'date-fns';
 import "./FormModal.css";
 
 
-const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFormData, selectedDate, reserveList }) => {
-  const [reservationsForDaT, setReservation] = useState([]);
+const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFormData}) => {
   const [phoneError, setPhoneError] = useState(false);
   const [tableError, setTableError] = useState(false);
-  const [tableInUsed, setTableInUsed] = useState(false);
   const [tempDate, setTempDate] = useState('')
   const handleFormChange = (fieldName, value) => {
     setFormData((prevFormData) => ({
@@ -35,42 +33,9 @@ const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFor
   const handleDateChange = (e) => {
     const rawDate = e.target.value; // Capture the date in 'yyyy-mm-dd' format
     setTempDate(rawDate)
-    const formattedDate = format(parseISO(rawDate, 'yyyy-MM-dd', new Date()), 'dd/MM/yyyy'); // Format to 'dd/mm/yyyy'
-
+    const formattedDate = format(parseISO(rawDate), 'dd-MM-yyyy');
     handleFormChange('Date', formattedDate);
   };
-
-  const handletableNumberChange = (e) => {
-    if(formData.Date === '' || formData.Time === '') {
-      setTableError(true);
-    }
-    else {
-      setTableError(false);
-    }
-
-    handleFormChange('tableNumber', e);
-  };
-
-  useEffect(() => {
-    if(formData.Date != '' && formData.Time != '') {
-    setReservation(reserveList.filter(
-      (Reserve) => 
-        Reserve.Date === formData.Date && 
-        Reserve.Time === formData.Time && 
-        Reserve.tableNumber === formData.tableNumber
-      ));
-    }
-  }, [formData.Date, formData.Time, formData.tableNumber]);
-
-  useEffect(() => {
-      if(reservationsForDaT.length != 0) {
-        setTableInUsed(true);
-      }
-      else {
-        setTableInUsed(false);
-      }
-    
-  }, [reservationsForDaT]);
 
 
   const calculateMaxDate = () => {
@@ -95,7 +60,7 @@ const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFor
 
    const handleConfirm = () => {
     // Check if required fields are filled before opening the confirmation modal
-    if (formData.FName && formData.Phone && formData.Date && formData.Time && formData.People && formData.tableNumber) {
+    if (formData.FName && formData.Phone && formData.Date && formData.Time && formData.People) {
       // Open the confirmation modal
       setConfirmationModalOpen(true);
     } else {
@@ -156,7 +121,7 @@ const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFor
               }}
               required
               error={phoneError}
-              helperText={phoneError ? 'Invalid phone number' : ''}
+              helperText={phoneError ? 'Invalid phone number (10-digit)' : ''}
             />
 
             <TextField
@@ -220,28 +185,6 @@ const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFor
               }}
             />
 
-            <TextField
-              InputProps={{ className: "input_form" }}
-              label="Table number"
-              type="number"
-              id="tableNumber"
-              name="tableNumber"
-              value={formData.tableNumber}
-              onChange={(e) => {
-                const value = parseInt(e.target.value, 10);
-                if (value > 0 & value <= 8) {
-                  handletableNumberChange(value);
-                }
-              }}
-              required
-              error={tableError || tableInUsed}
-              helperText={tableError
-                ? 'Please specify date and time first'
-                : tableInUsed
-                ? 'Table already in use'
-                : ''
-              }
-            />
 
             <TextField
               InputProps={{ className: "input_form" }}
@@ -260,7 +203,7 @@ const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFor
                 color="primary"
                 onClick={handleConfirm}
                 disabled={
-                  !(formData.FName && formData.Phone && formData.Date && formData.Time && formData.People && formData.tableNumber 
+                  !(formData.FName && formData.Phone && formData.Date && formData.Time && formData.People
                     && !phoneError && !tableError)
                 }
               >
@@ -284,7 +227,6 @@ const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFor
           <p>Date: {formData.Date}</p>
           <p>Time: {formData.Time}</p>
           <p>People: {formData.People}</p>
-          <p>Table: {formData.tableNumber}</p>
           <p>Note: {formData.Note}</p>
           <p>Deposit: {formData.People * 100000} vnđ</p>
           <p>Status: Create at time by user...</p>

@@ -1,18 +1,18 @@
 import "./Schedule.css";
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { CalendarButton } from "../../Components";
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import { FormModal } from "../../Components";
 import Button from '@mui/material/Button';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import ArrowCircleLeftIcon from '@mui/icons-material/ArrowCircleLeft';
 import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
-import { IconButton, Rating, TextField } from "@mui/material";
-
+import { IconButton, Rating } from "@mui/material";
+import { format } from 'date-fns';
 
 // Generate reserve table for view
 const TimeTable = ({reserveList, numOfTable, timeSlots}) => {
+  console.log("TT", reserveList)
   const [currentPage, setCurrentPage] = useState(0);
 
   const itemsPerPage = 6;
@@ -33,14 +33,35 @@ const TimeTable = ({reserveList, numOfTable, timeSlots}) => {
 const tableData = Array.from({ length: numOfTable}, () => new Array(itemsPerPage).fill(""));
 // Fill the table with data from reserveList
 reserveList.forEach((reserve) => {
-  if (reserve.TimeSlot >= startIdx && reserve.TimeSlot < endIdx) {
-    tableData[reserve.tableNumber - 1][reserve.TimeSlot - startIdx - 1] = (
-      <div>
-        {reserve.FName}
-        <br />
-        People: {reserve.People}
-      </div>
-    );
+  if (reserve.timeslot >= startIdx && reserve.timeslot < endIdx) {
+    let checkEnough = false;
+    for (let i=0;i<numOfTable;i++) {
+      if (!tableData[i][reserve.timeslot - startIdx - 1]) {
+        tableData[i][reserve.timeslot - startIdx - 1] = (
+          <div>
+            Name: {reserve.fname}
+            <br />
+            People: {reserve.seat_number}
+          </div>
+        );
+        checkEnough = true;
+        break;
+      }
+    }
+    if (!checkEnough) {
+      const newRow = new Array(itemsPerPage).fill("");
+      tableData.push(newRow);
+      tableData[numOfTable][reserve.timeslot - startIdx - 1] = (
+        <div>
+          Name: {reserve.fname}
+          <br />
+          People: {reserve.seat_number}
+        </div>
+      );
+      numOfTable++;
+    }
+    
+    
   }
 });
 
@@ -78,35 +99,28 @@ reserveList.forEach((reserve) => {
 
 // Customer review component
 const CustomerReview = ({reviewObject}) => {
-  const formattedDate = reviewObject.reviewDate.toLocaleDateString('en-US', {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-  });
   
-  const firstLetter = reviewObject.reviewName.charAt(0);
+  const firstLetter = "P";
 
   return (
     <div className="reviewBox">
       <div className="reviewProfile">
         <p className="reviewIcon">{firstLetter}</p>
-        <p className="reviewName">{reviewObject.reviewName}</p>
       </div>
 
       <div className="reviewContent">
         <div className="ratingAndDate">
-          <Rating name="half-rating" defaultValue={reviewObject.reviewRating} precision={0.5} sx={{marginRight: "10px", width: "fit-content"}} readOnly />
-          <p>Dined on {formattedDate}</p>
+          <Rating name="half-rating" defaultValue={reviewObject.stars} precision={0.5} sx={{marginRight: "10px", width: "fit-content"}} readOnly />
+          <p>Dined on {reviewObject.date}</p>
         </div>
-        <p>{reviewObject.reviewDetail}</p>
+        <p>{reviewObject.comment}</p>
       </div>
     </div>
   )
 }
 
-const Schedule = (props) => {
+const Schedule = () => {
   // fetched data from db
-  const {fetchedReserveList, fetchedReviewList, addReserveRecord, addReviewRecord} = props
   const { restaurant_id } = useParams();
   const [ restaurant, setRestaurant ] = useState();
   const [ resReserveList, setResReserveList ] = useState([]);
@@ -198,9 +212,14 @@ const Schedule = (props) => {
       setSeatCapaciry(restaurant.seat_capacity);
     }
   }, [restaurant]);
+  
+  //end fetched data from db 
 
-  const [reserveList, setReserveList] = useState(fetchedReserveList)
 
+  // data for current session 
+
+  // selected date for display corresponding table reservation
+  const [selectedDate, setSelectedDate] = useState(format(new Date(), 'dd-MM-yyyy'));
   const [formData, setFormData]= useState({
     CustomerID: 0,
     ReserveID: 0,
@@ -210,22 +229,18 @@ const Schedule = (props) => {
     Date:'',
     Time: '',
     People: 1,
-    tableNumber: 1,
     Note: '',
-    Deposit: 0,
     TimeSlot: 0
   })
-  //end fetched data from db 
 
-
-  // data for current session 
-
-  // selected date for display corresponding table reservation
-  const [selectedDate, setSelectedDate] = useState(new Date().toLocaleDateString("en-GB")); 
 
   // Reservation for selected date (table view change based on this list)
-  const [reservationsForSelectedDate, setReservation] = useState(reserveList.filter((formData) => formData.Date === selectedDate));
+  const [reservationsForSelectedDate, setReservation] = useState([]);
 
+  useEffect(() => {
+    setReservation(resReserveList.filter((record) => record.date === selectedDate))
+  }, [resReserveList])
+  
   // Other things, does not really matter
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -233,11 +248,11 @@ const Schedule = (props) => {
     if (reviews.length === 0) {
       return 0; // Return 0 if there are no reviews
     }
-    const totalRating = reviews.reduce((sum, review) => sum + review.reviewRating, 0);
+    const totalRating = reviews.reduce((sum, review) => sum + review.stars, 0);
     return totalRating / reviews.length; // Calculate average rating
   };
 
-  const overallRating = calculateOverallRating(fetchedReviewList);
+  const overallRating = calculateOverallRating(resReviewList);
 
 
   // Create button on click
@@ -256,9 +271,7 @@ const Schedule = (props) => {
       Date:'',
       Time: '',
       People: 1,
-      tableNumber: 1,
       Note: '',
-      Deposit: 0,
       TimeSlot: 0
     });
 
@@ -298,10 +311,9 @@ const Schedule = (props) => {
 
  // On select new date to view reservation 
  const handleSelectedDate = (date) => {
-  
-   const formattedDate = date.toLocaleDateString("en-GB");
+  const formattedDate = format(date, 'dd-MM-yyyy');
    setSelectedDate(formattedDate)
-   setReservation(reserveList.filter((formData) => formData.Date === formattedDate))
+   setReservation(resReserveList.filter((formData) => formData.date === formattedDate))
 
  }
  
@@ -309,11 +321,9 @@ const Schedule = (props) => {
   const handleConfirmModal = async () => {
     const newFormData = {
       ...formData,
-      Deposit: formData.People * 100000,
       TimeSlot: timeSlots.findIndex((slot) => slot.start === formData.Time) + 1,
     };
 
-    const updatedReserveList = [...fetchedReserveList, newFormData];
     try {
       // Send a POST request to add a new reserve
       const response = await fetch('http://localhost:3000/reservations/reserve', {
@@ -321,9 +331,9 @@ const Schedule = (props) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ customer_id: formData.CustomerID, restaurant_id: restaurant_id, date: formData.Date,
-                                time: formData.Time, timeslot: newFormData.TimeSlot, fname: formData.FName , email: formData.Email,
-                                phone_number: formData.Phone, number_of_seats: formData.People, note: formData.Note }),
+        body: JSON.stringify({ customer_id: newFormData.CustomerID, restaurant_id: restaurant_id, date: newFormData.Date,
+                                time: newFormData.Time, timeslot: newFormData.TimeSlot, fname: newFormData.FName , email: newFormData.Email,
+                                phone_number: newFormData.Phone, number_of_seats: newFormData.People, note: newFormData.Note }),
       });
 
       if (response.ok) {
@@ -334,15 +344,13 @@ const Schedule = (props) => {
     } catch (error) {
       console.error('Error adding Reservation:', error.message);
     }
-    setReserveList(updatedReserveList);
-    addReserveRecord(newFormData);
     setIsModalOpen(false);
   };
 
   // Set new value for reservationsForSelectedDate whenever reserveList change
   useEffect(() => {
-    setReservation(reserveList.filter((formData) => formData.Date === selectedDate))
-  }, [reserveList]);
+    setReservation(resReserveList.filter((formData) => formData.date === selectedDate))
+  }, [resReserveList]);
 
 
   return (
@@ -387,7 +395,7 @@ const Schedule = (props) => {
             timeSlots={timeSlots}
             setFormData={setFormData}
             selectedDate={selectedDate}
-            reserveList={reserveList}
+            reserveList={resReserveList}
           />
         }
       
@@ -397,14 +405,14 @@ const Schedule = (props) => {
           <h2>Comment</h2>
           <p><strong>Overall ratings and reviews</strong></p>
           <div style={{display: "flex", alignItems: "center"}}>
-            <Rating defaultValue={overallRating} precision={0.1} readOnly />
+            <Rating name="controlled-rating" value={overallRating} precision={0.1} readOnly />
             <p style={{marginLeft: "15px"}}>{overallRating} based on recent ratings</p>
           </div>
          
 
           <div style={{marginBottom: "50px"}}>
             <h2>All Reviews</h2>
-            {fetchedReviewList.map((reviewObject, index) => (
+            {resReviewList.map((reviewObject, index) => (
               <CustomerReview key={index} reviewObject={reviewObject} />
             ))}
             

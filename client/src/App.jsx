@@ -56,83 +56,6 @@ function App() {
     },
   ]);
 
-  const [fetchedReserveList, setFetchedReserveList] = useState([
-    {CustomerID: 1,
-      ReserveID: 1,
-      FName:'Peter',
-      Phone:'0723144212',
-      Email:'sdfa@gmail.com',
-      Date:'31/12/2023',
-      Time: '09:30',
-      People: 2,
-      tableNumber: 1,
-      Note: '',
-      Deposit: 200000,
-      TimeSlot: 2},
-
-      {CustomerID: 1,
-        ReserveID: 1,
-        FName:'Peter',
-        Phone:'0723144212',
-        Email:'sdfa@gmail.com',
-        Date:'31/12/2023',
-        Time: '09:30',
-        People: 2,
-        tableNumber: 3,
-        Note: '',
-        Deposit: 200000,
-        TimeSlot: 2},
-
-      {CustomerID: 1,
-        ReserveID: 2,
-        FName:'Peter',
-        Phone:'0723144212',
-        Email:'sdfa@gmail.com',
-        Date:'31/12/2023',
-        Time: '11:00',
-        People: 2,
-        tableNumber: 1,
-        Note: '',
-        Deposit: 200000,
-        TimeSlot: 5},
-
-    {CustomerID: 2,
-      ReserveID: 2,
-      FName:'David',
-      Phone:'0912144212',
-      Email:'gvc@gmail.com',
-      Date:'03/01/2024',
-      Time: '10:00',
-      People: 3,
-      tableNumber: 1,
-      Note: '',
-      Deposit: 300000,
-      TimeSlot: 3},
-  ])
-
-  const addReserveRecord = (value) => {
-    setFetchedReserveList((prevList) => [...prevList, value]);
-  }
-
-  useEffect(()=>{
-    console.log("FRL",fetchedReserveList)
-  }, [fetchedReserveList])
-
-  const [fetchedReviewList, setFetchedReviewList] = useState([
-    {reviewDate: new Date(2023, 1, 1),
-      reviewName: "Peter",
-      reviewDetail: "Food delicious",
-      reviewRating: 4.5}, 
-
-    {reviewDate: new Date(2023, 1, 5),
-      reviewName: "David",
-      reviewDetail: "Food OK",
-      reviewRating: 4.0}
-  ])
-
-  const addReviewRecord = (value) => {
-    setFetchedReviewList((prevList) => [...prevList, value]);
-  }
 
   return (
     <Router>
@@ -142,7 +65,7 @@ function App() {
           <Routes>
             <Route exact path="/" element={<Home data={dummyData} />} />
             <Route path="/History" element={<History />} />
-            <Route path="/Schedule/:restaurant_id" element={<Schedule fetchedReserveList={fetchedReserveList} fetchedReviewList={fetchedReviewList} addReserveRecord={addReserveRecord} addReviewRecord={addReviewRecord}/>} />
+            <Route path="/Schedule/:restaurant_id" element={<Schedule/>} />
             <Route path="/APIsExample" element={<APIsExample />} />
           </Routes>
         </div>
