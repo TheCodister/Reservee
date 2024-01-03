@@ -33,7 +33,7 @@ const TimeTable = ({reserveList, numOfTable, timeSlots}) => {
 const tableData = Array.from({ length: numOfTable}, () => new Array(itemsPerPage).fill(""));
 // Fill the table with data from reserveList
 reserveList.forEach((reserve) => {
-  if (reserve.timeslot >= startIdx && reserve.timeslot < endIdx) {
+  if (reserve.timeslot >= startIdx && reserve.timeslot - 1 < endIdx) {
     let checkEnough = false;
     for (let i=0;i<numOfTable;i++) {
       if (!tableData[i][reserve.timeslot - startIdx - 1]) {
@@ -344,6 +344,7 @@ const Schedule = () => {
     } catch (error) {
       console.error('Error adding Reservation:', error.message);
     }
+    fetchResReserveList();
     setIsModalOpen(false);
   };
 
@@ -396,6 +397,7 @@ const Schedule = () => {
             setFormData={setFormData}
             selectedDate={selectedDate}
             reserveList={resReserveList}
+            restaurant={restaurant}
           />
         }
       

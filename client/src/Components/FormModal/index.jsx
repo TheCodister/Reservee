@@ -8,9 +8,10 @@ import { format, parseISO } from 'date-fns';
 import "./FormModal.css";
 
 
-const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFormData}) => {
+const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFormData, reserveList, restaurant}) => {
   const [phoneError, setPhoneError] = useState(false);
   const [tableError, setTableError] = useState(false);
+  const [maxSeat, setMaxSeat] = useState(restaurant.seat_capacity);
   const [tempDate, setTempDate] = useState('')
   const handleFormChange = (fieldName, value) => {
     setFormData((prevFormData) => ({
@@ -37,6 +38,24 @@ const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFor
     handleFormChange('Date', formattedDate);
   };
 
+  useEffect(() => {
+    if(formData.Date != '' && formData.Time != '') {
+      const matchingReserves = reserveList.filter(
+        (Reserve) =>
+          Reserve.date === formData.Date &&
+          Reserve.time === formData.Time 
+      );
+  
+      const sumOfSeatNumbers = matchingReserves.reduce(
+        (sum, reserve) => sum + reserve.seat_number,
+        0
+      );
+  
+      // Now you have the sumOfSeatNumbers for the matching Reserves
+      console.log('Sum of seat numbers:', sumOfSeatNumbers);
+      setMaxSeat(restaurant.seat_capacity - sumOfSeatNumbers);
+    }
+  }, [formData.Date, formData.Time]);
 
   const calculateMaxDate = () => {
     const maxDate = new Date();
@@ -179,10 +198,13 @@ const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFor
               required
               onChange={(e) => {
                 const value = parseInt(e.target.value, 10);
-                if (value > 0 & value <= 4) {
+                if (value > 0 & value <= maxSeat) {
                   handleFormChange("People", value);
                 }
               }}
+              disabled={maxSeat === 0}
+              error={maxSeat === 0}
+              helperText={maxSeat === 0 ? 'No seat available in this time slot' : ''}
             />
 
 
@@ -204,7 +226,7 @@ const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFor
                 onClick={handleConfirm}
                 disabled={
                   !(formData.FName && formData.Phone && formData.Date && formData.Time && formData.People
-                    && !phoneError && !tableError)
+                    && !phoneError && !tableError && !(maxSeat === 0))
                 }
               >
                 Đồng ý
@@ -224,6 +246,7 @@ const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFor
           <p>Full Name: {formData.FName}</p>
           <p>Phone: {formData.Phone}</p>
           <p>Email: {formData.Email}</p>
+          <p>Restaurant: {restaurant.name}</p>
           <p>Date: {formData.Date}</p>
           <p>Time: {formData.Time}</p>
           <p>People: {formData.People}</p>
