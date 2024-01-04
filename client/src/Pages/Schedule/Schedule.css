@@ -1,12 +1,124 @@
 .schedule {
   display: flex;
-  width: 100%;
-  height: 100vh;
-  align-items: center;
+  width: 94%;
   flex-direction: column;
+  min-height: 100%;
+  max-height: 100vh;
+  font-size: 1.2em;
 }
-.schedule-title {
+
+.reserveCreate {
   display: flex;
   align-items: center;
-  text-align: center;
+  margin-top: 20px;
 }
+
+.createReservation {
+  margin-left: 5%;
+}
+
+
+.reserveColumn {
+  width: 10vw;
+}
+
+.noData {
+  height: 64px;
+}
+
+.reserveData {
+  background-color: #A3F394;
+  height: 54px;
+  padding: 5px 10px;
+}
+
+.reserveList {
+  border-collapse: collapse;
+}
+
+.reserveList td {
+  color: #635C5C;
+  font-weight: bold;
+  border: 1px solid #E5E5E5
+}
+
+.tableWithArrow {
+  display: flex;
+  flex-direction: row;
+  margin: 20px 0;
+  align-items: start;
+}
+
+.restaurantInfo {
+  width: 40%;
+}
+
+.truncateText {
+  margin-top: 10px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.normalText {
+  margin-top: 10px;
+}
+
+.displayText {
+  color: red;
+  display: inline-block;
+}
+
+.noText {
+  display: none;
+}
+
+.reviewBox {
+  display: flex;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  border-bottom:1px solid black;
+  width: 70%;
+}
+
+.reviewProfile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+}
+
+.reviewIcon {
+  width: 40px; /* Adjust the size of the circle */
+  height: 40px; /* Adjust the size of the circle */
+  color: #fff; /* Adjust the text color */
+  border-radius: 50%; /* Create a circular shape */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2em; /* Adjust the font size */
+  background-color: #6c8ae4;
+  font-weight: bold;
+}
+
+.reviewContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.ratingAndDate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.sendingReview {
+  display: flex;
+  align-items: center;
+  color: red;
+  margin-top: 20px
+}
+

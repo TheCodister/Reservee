@@ -4,4 +4,6 @@
 .content {
   width: 86vw;
   overflow: auto;
+  display: flex;
+  justify-content: center;
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { Home, History, Schedule, APIsExample } from "./Pages";
 import { NavBar } from "./Components";
@@ -13,7 +13,7 @@ function App() {
           <Routes>
             <Route exact path="/" element={<Home />} />
             <Route path="/History" element={<History />} />
-            <Route path="/Schedule/:id" element={<Schedule />} />
+            <Route path="/Schedule/:restaurant_id" element={<Schedule/>} />
             <Route path="/APIsExample" element={<APIsExample />} />
           </Routes>
         </div>
