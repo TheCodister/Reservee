@@ -176,6 +176,17 @@ router.put('/:reservation_id', (req, res) => {
     );
 });
 
+router.get('/:reservationId', async (req, res) => {
+  const reservationId = req.params.reservationId;
+  try {
+    const details = await fetchReservationDetails(reservationId);
+    res.json(details);
+  } catch (error) {
+    console.error('Error fetching reservation details:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 // API endpoint to update the number of seats of a reservation by ID
 router.put('/:reservation_id/seats', (req, res) => {
     const reservation_id = req.params.reservation_id;
@@ -305,5 +316,25 @@ function calculateBeforeTime(startTime) {
   
     return beforeTime;
 }
+
+const fetchReservationDetails = (reservationId) => {
+  return new Promise((resolve, reject) => {
+    const query = `
+      SELECT reservation.date, reservation.time, reservation.seat_number,
+             customer.name AS full_name, customer.phone_number, customer.email
+      FROM reservation
+      JOIN customer ON reservation.customer_id = customer.id
+      WHERE reservation.id = ?
+    `;
+
+    db.get(query, [reservationId], (err, row) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(row);
+      }
+    });
+  });
+};
 
 module.exports = router;
