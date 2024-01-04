@@ -198,13 +198,14 @@ const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFor
               required
               onChange={(e) => {
                 const value = parseInt(e.target.value, 10);
-                if (value > 0 & value <= maxSeat) {
+                if (value > 0  & value <= 99999) {
                   handleFormChange("People", value);
                 }
               }}
               disabled={maxSeat === 0}
-              error={maxSeat === 0}
-              helperText={maxSeat === 0 ? 'No seat available in this time slot' : ''}
+              error={maxSeat === 0 || formData.People > maxSeat}
+              helperText={maxSeat === 0 ? 'No seat available in this time slot' : 
+              formData.People > maxSeat ? `Seating overflow. (Max: ${maxSeat})` : ''}
             />
 
 
@@ -226,7 +227,7 @@ const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFor
                 onClick={handleConfirm}
                 disabled={
                   !(formData.FName && formData.Phone && formData.Date && formData.Time && formData.People
-                    && !phoneError && !tableError && !(maxSeat === 0))
+                    && !phoneError && !tableError && !(maxSeat === 0) && !(formData.People > maxSeat))
                 }
               >
                 Đồng ý
