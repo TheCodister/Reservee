@@ -11,7 +11,7 @@ const NavBar = () => {
             <p>Home</p>
           </div>
         </Link>
-        
+
         <Link to="/History">
           <div className="navbar-butt">
             <img src="./Images/documents.png" alt="Icon" />

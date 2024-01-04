@@ -1,17 +1,44 @@
 import "./Home.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Menu } from "../../Components";
 import SearchIcon from "@mui/icons-material/Search";
 import { Link } from "react-router-dom";
-import { set } from "date-fns";
-const Home = (props) => {
-  const resData = props.data;
+import axios from "axios";
+const Home = () => {
+  const [response, setResponse] = useState([]);
   const [searchInput, setSearchInput] = useState("");
-  const [searchResult, setSearchResult] = useState(resData); // eslint-disable-line no-unused-vars
+  const [searchResult, setSearchResult] = useState([]);
+  const [buttonPopup, setButtonPopup] = useState(false);
+  const [menuurl, setMenuurl] = useState([]);
+  useEffect(() => {
+    const getData = () => {
+      axios
+        .get("http://localhost:3000/restaurants")
+        .then((res) => {
+          setSearchResult(res.data);
+          setResponse(res.data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    };
+    getData();
+  }, []);
+  const getMenubyID = (restaurant_id) => {
+    axios
+      .get(`http://localhost:3000/restaurants/menus/${restaurant_id}`)
+      .then((res) => {
+        setMenuurl(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
   const handleChange = (e) => {
     var lowerCase = e.target.value.toLowerCase();
     e.preventDefault();
     setSearchInput(lowerCase);
-    const result = resData.filter((data) => {
+    const result = response.filter((data) => {
       if (searchInput.length > 0) {
         return data && data.name && data.name.toLowerCase().includes(lowerCase);
       } else {
@@ -19,6 +46,19 @@ const Home = (props) => {
       }
     });
     setSearchResult(result);
+  };
+  const convertToString = (price) => {
+    switch (price) {
+      case 1:
+        return "$";
+        break;
+      case 2:
+        return "$$";
+        break;
+      case 3:
+        return "$$$";
+        break;
+    }
   };
   return (
     <div className="home">
@@ -37,20 +77,54 @@ const Home = (props) => {
       </div>
       <div className="home-menu">
         {searchResult.map((result) => (
-          <div className="home-menu-item" key={result.id}>
-            <div className="home-menu-item-img">
-              <img src="./Images/Food.png" alt="food" />
-            </div>
-            <div className="home-menu-item-des">
-              <h2>{result.name}</h2>
-              <p>{result.des}</p>
-            </div>
-            <div className="home-menu-item-table">
-              <h2>Total table: {result.totalTable}</h2>
-              <h2>Table remain: {result.totalRemain}</h2>
-              <h2>
-                Open time: <br></br> 9:00 - 21:00
-              </h2>
+          <div className="home-item-profile" key={result.id}>
+            <Menu
+              trigger={buttonPopup}
+              setTrigger={setButtonPopup}
+              src={menuurl}
+            ></Menu>
+            <Link to={`/Schedule/${result.id}`} key={result.id}>
+              <div className="home-menu-item">
+                <div className="home-menu-item-img">
+                  <img
+                    src={"http://localhost:3000/static/" + result.photo_url}
+                    alt="food"
+                  />
+                </div>
+                <div className="home-menu-item-des">
+                  <h2>
+                    {result.name} - {convertToString(result.price_range)}
+                  </h2>
+                  <h3>Cuisine: {result.cuisine}</h3>
+                  <p>{result.description}</p>
+                </div>
+                <div className="home-menu-item-table">
+                  <div className="home-menu-item-table-att">
+                    <h2>Max capacity: </h2>
+                    <p>{result.seat_capacity}</p>
+                  </div>
+                  <div className="home-menu-item-table-att">
+                    <h2>Phone number: </h2>
+                    <p>{result.phone_number}</p>
+                  </div>
+                  <div className="home-menu-item-table-att">
+                    <h2>Address: </h2>
+                    <p>{result.address}</p>
+                  </div>
+                </div>
+              </div>
+            </Link>
+            <div className="home-menu-item-menu">
+              <h4
+                onClick={() => {
+                  setTimeout(() => {
+                    setButtonPopup(true);
+                  }, 100);
+                  getMenubyID(result.id);
+                }}
+              >
+                View Menu
+              </h4>
             </div>
           </div>
         ))}

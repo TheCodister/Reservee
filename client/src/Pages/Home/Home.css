@@ -41,15 +41,20 @@
 .home-searchbar:focus {
   outline: none;
 }
+.home-item-profile {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  border: #000 3px solid;
+  border-radius: 1vw;
+  padding: 1.5vw;
+  width: 75vw;
+  height: 15vh;
+}
 .home-menu-item {
   display: flex;
   align-items: center;
-  border: #000 3px solid;
-  gap: 2vw;
-  border-radius: 1vw;
-  padding: 1.5vw;
-  width: 65vw;
-  height: 15vh;
+  gap: 1vw;
   cursor: pointer;
 }
 .home-menu {
@@ -69,19 +74,52 @@
 .home-menu-item-des {
   padding: 1vw;
   width: 40vw;
-  border-left: #000 3px solid;
-  border-right: #000 3px solid;
+  height: 14vh;
+  border-left: #000 2px solid;
+  border-right: #000 2px solid;
   font-size: 1.1vw;
   display: flex;
   flex-direction: column;
-  gap: 1vh;
 }
 .home-menu-item-des h2,
+h3,
 p {
   margin: 0;
 }
 .home-menu-item-table {
   display: flex;
+  width: 14vw;
   flex-direction: column;
-  font-size: 0.7vw;
+  font-size: 0.65vw;
+}
+.home-menu-item-table-att {
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  justify-content: center;
+  line-clamp: 1;
+  margin-bottom: 1vh;
+}
+.home-menu-item-table h2 {
+  margin: 0vh;
+}
+.home-menu-item-table-att p {
+  margin: 0;
+  font-size: 0.8vw;
+}
+.home-menu-item-menu {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  height: 18vh;
+  border-left: #000 2px solid;
+  z-index: 1;
+}
+.home-menu-item-menu:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+.home a {
+  color: #000;
 }
