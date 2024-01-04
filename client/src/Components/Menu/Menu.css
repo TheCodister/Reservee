@@ -1,0 +1,18 @@
+.menu {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw; /* 100% of the viewport width */
+  height: 100vh; /* 100% of the viewport height */
+  overflow: hidden;
+  background-color: #464646;
+  z-index: 2;
+  gap: 3vw;
+}
+.menu-img {
+  height: 90vh;
+  width: 40vw;
+}

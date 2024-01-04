@@ -17,11 +17,11 @@ router.get('/', (req, res) => {
 
 // API endpoint to add a new reservation by customer_id, restaurant_id, date, time, number_of_seats
 router.post('/reserve', (req, res) => {
-    const { customer_id, restaurant_id, date, time, number_of_seats } = req.body;
+    const { customer_id, restaurant_id, date, time, timeslot, fname, email, phone_number, number_of_seats, note } = req.body;
   
     // Check seat availability
     const startTime = time;
-    const beforeTime = calculateBeforeTime(time); // Implement a function to calculate the end time
+    const beforeTime = calculateBeforeTime(time); 
     getTotalAvailableSeats(restaurant_id, (err, seatCapacity) => {
         if (err) {
           console.error(err);
@@ -42,10 +42,10 @@ router.post('/reserve', (req, res) => {
           // Reservation is possible, insert into the database
           reservationModel.run(
             `
-            INSERT INTO reservation (customer_id, restaurant_id, date, time, seat_number)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO reservation (customer_id, restaurant_id, date, time, timeslot, fname, email, phone_number, seat_number, note)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
           `,
-            [customer_id, restaurant_id, date, time, number_of_seats],
+            [customer_id, restaurant_id, date, time, timeslot, fname, email, phone_number, number_of_seats, note],
             (err) => {
               if (err) {
                 console.error(err);
@@ -64,8 +64,31 @@ router.post('/reserve', (req, res) => {
     });
   });
 
-// API endpoint to get a reservation by ID
-router.get('/:customer_id', (req, res) => {
+// API endpoint to get a reservation by reservation ID
+router.get('/reservation/:reservation_id', (req, res) => {
+  const reservation_id = req.params.reservation_id;
+
+  reservationModel.all(
+      `
+      SELECT *
+      FROM reservation
+      WHERE id = ?
+  `,
+      [reservation_id],
+      (err, rows) => {
+      if (err) {
+          console.error(err);
+          res.status(500).json({ error: 'Internal Server Error' });
+          return;
+      }
+
+      res.json({ reservations: rows });
+      }
+  );
+});
+
+// API endpoint to get a reservation by customer ID
+router.get('/customer/:customer_id', (req, res) => {
     const customer_id = req.params.customer_id;
 
     reservationModel.all(
@@ -86,6 +109,30 @@ router.get('/:customer_id', (req, res) => {
         res.json({ reservations: rows });
         }
     );
+});
+
+// API endpoint to get a reservation by restaurant ID
+router.get('/restaurant/:restaurant_id', (req, res) => {
+  const restaurant_id = req.params.restaurant_id;
+
+  reservationModel.all(
+      `
+      SELECT *
+      FROM reservation
+      WHERE restaurant_id = ?
+      ORDER BY date DESC, time DESC
+  `,
+      [restaurant_id],
+      (err, rows) => {
+      if (err) {
+          console.error(err);
+          res.status(500).json({ error: 'Internal Server Error' });
+          return;
+      }
+
+      res.json({ reservations: rows });
+      }
+  );
 });
 
 // API endpoint to delete a reservation by ID
@@ -130,56 +177,56 @@ router.delete('/:reservation_id', (req, res) => {
     );
   });
 
-// API endpoint to update the date and time of a reservation by ID
-router.put('/:reservation_id', (req, res) => {
-    const reservation_id = req.params.reservation_id;
-    const { date, time } = req.body;
-  
-    reservationModel.get(
-      `
-      SELECT *
-      FROM reservation
-      WHERE id = ?
-    `,
-      [reservation_id],
-      (err, row) => {
-        if (err) {
-          console.error(err);
-          res.status(500).json({ error: 'Internal Server Error' });
-          return;
-        }
-  
-        if (!row) {
-          res.status(404).json({ error: 'Reservation not found' });
-          return;
-        }
-  
-        reservationModel.run(
-          `
-          UPDATE reservation
-          SET date = ?, time = ?
-          WHERE id = ?
-        `,
-          [date, time, reservation_id],
-          (err) => {
-            if (err) {
-              console.error(err);
-              res.status(500).json({ error: 'Internal Server Error' });
-              return;
-            }
-  
-            // Reservation successfully updated
-            res.json({ message: 'Reservation updated successfully' });
-          }
-        );
+// API endpoint to update the information of a reservation by ID
+router.put('/infos/:reservation_id', (req, res) => {
+  const reservation_id = req.params.reservation_id;
+  const { fname, email, phone_number, note } = req.body;
+
+  reservationModel.get(
+    `
+    SELECT *
+    FROM reservation
+    WHERE id = ?
+  `,
+    [reservation_id],
+    (err, row) => {
+      if (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Internal Server Error' });
+        return;
       }
-    );
+
+      if (!row) {
+        res.status(404).json({ error: 'Reservation not found' });
+        return;
+      }
+
+      reservationModel.run(
+        `
+        UPDATE reservation
+        SET fname = ?, email = ?, phone_number = ?, note = ?
+        WHERE id = ?
+      `,
+        [fname, email, phone_number, note, reservation_id],
+        (err) => {
+          if (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Internal Server Error' });
+            return;
+          }
+
+          // Reservation successfully updated
+          res.json({ message: 'Reservation updated successfully' });
+        }
+      );
+    }
+  );
 });
 
-// API endpoint to update the number of seats of a reservation by ID
-router.put('/:reservation_id/seats', (req, res) => {
+// API endpoint to update the date, time, number of seats of a reservation by ID
+router.put('/:reservation_id', (req, res) => {
     const reservation_id = req.params.reservation_id;
-    const { number_of_seats } = req.body;
+    const { date, time, timeslot, number_of_seats } = req.body;
   
     reservationModel.get(
       `
@@ -199,10 +246,9 @@ router.put('/:reservation_id/seats', (req, res) => {
           res.status(404).json({ error: 'Reservation not found' });
           return;
         }
-        const startTime = row.time;
+        const startTime = time;
         const beforeTime = calculateBeforeTime(startTime); 
         const restaurant_id = row.restaurant_id;
-        const date = row.date;
 
         getTotalAvailableSeats(restaurant_id, (err, seatCapacity) => {
             if (err) {
@@ -211,21 +257,21 @@ router.put('/:reservation_id/seats', (req, res) => {
               return;
             }
     
-            getTotalReservedSeats(restaurant_id, date, beforeTime, startTime, (err, totalReservedSeats) => {
+            getTotalReservedSeatsExcept(reservation_id, restaurant_id, date, beforeTime, startTime, (err, totalReservedSeats) => {
                 if (err) {
                   console.error(err);
                   res.status(500).json({ error: 'Internal Server Error' });
                   return;
                 }
                 const totalAvailableSeats = seatCapacity - totalReservedSeats;
-                if (totalAvailableSeats >= number_of_seats - row.seat_number) {
+                if (totalAvailableSeats >= number_of_seats) {
                     reservationModel.run(
                         `
                         UPDATE reservation
-                        SET seat_number = ?
+                        SET date = ?, time = ?, timeslot = ?, seat_number = ?
                         WHERE id = ?
                         `,
-                        [number_of_seats, reservation_id],
+                        [date, time, timeslot, number_of_seats, reservation_id],
                         (err) => {
                             if (err) {
                             console.error(err);
@@ -233,7 +279,7 @@ router.put('/:reservation_id/seats', (req, res) => {
                             return;
                             }
                 
-                            res.json({ message: 'Reservation seats updated successfully' });
+                            res.json({ message: 'Reservation updated successfully' });
                         }
                     );
                 }
@@ -276,7 +322,7 @@ function getTotalReservedSeats(restaurant_id, date, startTime, endTime, callback
         `
         SELECT COUNT(*) as total_reserved_seats
         FROM reservation
-        WHERE id = ? AND date = ? AND time BETWEEN ? AND ?
+        WHERE restaurant_id = ? AND date = ? AND time BETWEEN ? AND ?
     `,
         [restaurant_id, date, startTime, endTime],
         (err, row) => {
@@ -290,7 +336,27 @@ function getTotalReservedSeats(restaurant_id, date, startTime, endTime, callback
         }
     );
 }
-  
+
+function getTotalReservedSeatsExcept(reservation_id, restaurant_id, date, startTime, endTime, callback) {
+  reservationModel.get(
+      `
+      SELECT COUNT(*) as total_reserved_seats
+      FROM reservation
+      WHERE restaurant_id = ? AND date = ? AND time BETWEEN ? AND ? AND id <> ?
+  `,
+      [restaurant_id, date, startTime, endTime, reservation_id],
+      (err, row) => {
+      if (err) {
+          callback(err, null);
+          return;
+      }
+
+      const totalReservedSeats = row.total_reserved_seats || 0;
+      callback(null, totalReservedSeats);
+      }
+  );
+}
+
 function calculateBeforeTime(startTime) {
     const [hours, minutes] = startTime.split(':');
     let beforeHour = parseInt(hours, 10) - 1;

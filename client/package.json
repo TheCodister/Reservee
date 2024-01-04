@@ -14,7 +14,7 @@
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.14.19",
     "@mui/material": "^5.14.20",
-    "axios": "^1.6.2",
+    "axios": "^1.6.3",
     "date-fns": "^2.24.0",
     "localforage": "^1.10.0",
     "match-sorter": "^6.3.1",

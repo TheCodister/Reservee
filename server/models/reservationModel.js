@@ -9,7 +9,12 @@ db.serialize(() => {
         restaurant_id INTEGER,
         date TEXT,
         time TEXT,
+        timeslot INTEGER,
+        fname VARCHAR(50),
+        email VARCHAR(50),
+        phone_number VARCHAR(15),
         seat_number INTEGER,
+        note VARCHAR(300),
         FOREIGN KEY (customer_id) REFERENCES customer(id),
         FOREIGN KEY (restaurant_id) REFERENCES restaurant(id)
     )`);

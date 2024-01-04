@@ -1,51 +1,61 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 
 const APIsExample = (props) => {
   const [restaurants, setRestaurants] = useState([]);
-  const [restaurantPhoto, setRestaurantPhoto] = useState('');
-  const [restaurantName, setRestaurantName] = useState('');
-  const [restaurantCuisine, setRestaurantCuisine] = useState('');
-  const [restaurantAddress, setRestaurantAddress] = useState('');
-  const [restaurantPhone, setRestaurantPhone] = useState('');
-  const [restaurantSeat, setRestaurantSeat] = useState('');
-  const [searchKeyword, setSearchKeyword] = useState('');
+  const [restaurantPhoto, setRestaurantPhoto] = useState("");
+  const [restaurantName, setRestaurantName] = useState("");
+  const [restaurantCuisine, setRestaurantCuisine] = useState("");
+  const [restaurantAddress, setRestaurantAddress] = useState("");
+  const [restaurantPhone, setRestaurantPhone] = useState("");
+  const [restaurantSeat, setRestaurantSeat] = useState("");
+  const [searchKeyword, setSearchKeyword] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       // Send a POST request to add a new restaurant
-      const response = await fetch('http://localhost:3000/restaurants', {
-        method: 'POST',
+      const response = await fetch("http://localhost:3000/restaurants", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ photo_url: restaurantPhoto, name: restaurantName, cuisine: restaurantCuisine,
-                                address: restaurantAddress, phone_number: restaurantPhone, seat_capacity: restaurantSeat }),
+        body: JSON.stringify({
+          photo_url: restaurantPhoto,
+          name: restaurantName,
+          cuisine: restaurantCuisine,
+          address: restaurantAddress,
+          phone_number: restaurantPhone,
+          seat_capacity: restaurantSeat,
+        }),
       });
 
       if (response.ok) {
-        console.log('Restaurant added successfully!');
+        console.log("Restaurant added successfully!");
         // Fetch updated restaurant list after adding a new restaurant
-        const updatedRestaurants = await fetch('http://localhost:3000/restaurants')
+        const updatedRestaurants = await fetch(
+          "http://localhost:3000/restaurants"
+        )
           .then((res) => res.json())
-          .catch((err) => console.error('Error fetching updated data:', err));
+          .catch((err) => console.error("Error fetching updated data:", err));
 
         setRestaurants(updatedRestaurants);
         // Reset the form or update state as needed
-        setRestaurantName('');
+        setRestaurantName("");
       } else {
-        console.error('Failed to add restaurant:', response.status);
+        console.error("Failed to add restaurant:", response.status);
       }
     } catch (error) {
-      console.error('Error adding restaurant:', error.message);
+      console.error("Error adding restaurant:", error.message);
     }
   };
 
   const fetchRestaurants = async (keyword) => {
     const url = keyword
-      ? `http://localhost:3000/restaurants/search?keyword=${encodeURIComponent(keyword)}`
-      : 'http://localhost:3000/restaurants';
+      ? `http://localhost:3000/restaurants/search?keyword=${encodeURIComponent(
+          keyword
+        )}`
+      : "http://localhost:3000/restaurants";
 
     try {
       const response = await fetch(url);
@@ -54,10 +64,10 @@ const APIsExample = (props) => {
       if (response.ok) {
         setRestaurants(data);
       } else {
-        console.error('Failed to fetch restaurants:', response.status);
+        console.error("Failed to fetch restaurants:", response.status);
       }
     } catch (error) {
-      console.error('Error fetching restaurants:', error.message);
+      console.error("Error fetching restaurants:", error.message);
     }
   };
 
@@ -80,14 +90,17 @@ const APIsExample = (props) => {
         value={searchKeyword}
         onChange={(e) => setSearchKeyword(e.target.value)}
       />
-      
+
       {/* Search button */}
       <button onClick={handleSearch}>Search</button>
 
       <ul>
         {restaurants.map((restaurant) => (
           <li key={restaurant.id}>
-            <img src={`http://localhost:3000/static/${restaurant.photo_url}`} alt={restaurant.name} />
+            <img
+              src={`http://localhost:3000/static/${restaurant.photo_url}`}
+              alt={restaurant.name}
+            />
             <p>{restaurant.name}</p>
           </li>
         ))}
@@ -145,6 +158,6 @@ const APIsExample = (props) => {
       </form>
     </div>
   );
-}
+};
 
 export default APIsExample;
