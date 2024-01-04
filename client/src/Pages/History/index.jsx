@@ -11,41 +11,13 @@ const History = () => {
 
   useEffect(() => {
     fetch("/api/history")
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      })
+      .then((response) => response.json())
       .then((data) => setTableHistory(data))
       .catch((error) => console.error("Error fetching history:", error));
   }, []);
 
-  const fetchReservationDetails = async (reservationId) => {
-    try {
-      const response = await fetch(`/api/history/${reservationId}`);
-      if (!response.ok) {
-        throw new Error(`Error fetching reservation details: ${response.status}`);
-      }
-      return response.json();
-    } catch (error) {
-      console.error(error);
-      throw new Error("Error fetching reservation details");
-    }
-  };
-
-  const fetchAndShowDetails = async (reservationId) => {
-    try {
-      const details = await fetchReservationDetails(reservationId);
-      console.log("Reservation Details:", details);
-      // Here, you can update the state or display the details as needed
-    } catch (error) {
-      console.error("Error fetching reservation details:", error);
-    }
-  };
-
   const filteredReservations = tableHistory.filter((reservation) => {
-    if (!startDate && !endDate) return true;
+    if (!startDate && !endDate) return true; // If no date range is set, show all reservations
 
     const reservationDate = new Date(reservation.date).getTime();
     const startTimestamp = startDate ? new Date(startDate).getTime() : 0;
@@ -73,12 +45,12 @@ const History = () => {
 
   const handleStartDateChange = (date) => {
     setStartDate(date);
-    setCurrentPage(1);
+    setCurrentPage(1); // Reset to the first page when the date range changes
   };
 
   const handleEndDateChange = (date) => {
     setEndDate(date);
-    setCurrentPage(1);
+    setCurrentPage(1); // Reset to the first page when the date range changes
   };
 
   return (
@@ -104,27 +76,28 @@ const History = () => {
       </div>
       <table>
         <thead>
-          <tr>
+        <tr>
             <th>Date</th>
-            <th>Time</th>
-            <th>Seat Number</th>
+            <th>Timeslots</th>
+            <th>People</th>
+            <th>Status</th>
             <th>Full Name</th>
             <th>Phone Number</th>
             <th>Email</th>
+            <th>Notes</th>
           </tr>
         </thead>
         <tbody>
           {currentReservations.map((reservation) => (
-            <tr
-              key={reservation.id}
-              onClick={() => fetchAndShowDetails(reservation.id)}
-            >
+            <tr key={reservation.id}>
               <td>{reservation.date}</td>
-              <td>{reservation.time}</td>
-              <td>{reservation.seat_number}</td>
-              <td>{reservation.full_name}</td>
-              <td>{reservation.phone_number}</td>
+              <td>{reservation.timeslots}</td>
+              <td>{reservation.people}</td>
+              <td>{reservation.status}</td>
+              <td>{reservation.fullname}</td>
+              <td>{reservation.phonenumber}</td>
               <td>{reservation.email}</td>
+              <td>{reservation.notes}</td>
             </tr>
           ))}
         </tbody>
