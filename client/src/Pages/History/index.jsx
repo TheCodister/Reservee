@@ -1,20 +1,25 @@
 import "./History.css";
 import React, { useState, useEffect } from "react";
 import "react-datepicker/dist/react-datepicker.css";
+import axios from 'axios';
 
 const History = () => {
-  const [tableHistory, setTableHistory] = useState([]);
+  const [tableHistory, setHistory] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const reservationsPerPage = 5;
 
   useEffect(() => {
-    fetch("/api/history")
-      .then((response) => response.json())
-      .then((data) => setTableHistory(data))
-      .catch((error) => console.error("Error fetching history:", error));
-  }, []);
+    // Fetch history on component mount
+    axios.get('http://localhost:3000/reservation')
+      .then(response => {
+        setHistory(response.data);
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  }, []); // Empty dependency array means this effect runs once after the initial render
 
   const filteredReservations = tableHistory.filter((reservation) => {
     if (!startDate && !endDate) return true; // If no date range is set, show all reservations
