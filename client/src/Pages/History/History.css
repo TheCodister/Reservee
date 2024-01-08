@@ -13,11 +13,21 @@
   overflow-y: auto; 
   max-height: 50vh;
 }
-
+.date-range-container{
+  border: 2px solid #000000;
+  border-radius: 5px;
+  padding-top: 50px;
+  padding-bottom: 50px;
+  padding-left: 120px;
+  padding-right: 120px;
+  margin-bottom: 20px;
+}
 table {
-  width: 100%;
+  width: 80%;
   border-collapse: collapse;
   margin-top: 10px;
+  margin-bottom: 10px;
+
 }
 
 th, td {
@@ -28,4 +38,6 @@ th, td {
 
 th {
   background-color: #f2f2f2;
+  color: #000000;
+
 }
