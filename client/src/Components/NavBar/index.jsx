@@ -26,6 +26,13 @@ const NavBar = () => {
           </div>
         </Link>
 
+        <Link to="/Login">
+          <div className="navbar-butt">
+            <img src="/./Images/documents.png" alt="Icon" />
+            <p>Login</p>
+          </div>
+        </Link>
+
         <Link to="/APIsExample">
           <div className="navbar-butt">
             <img src="/./Images/logout.png" alt="Icon" />
