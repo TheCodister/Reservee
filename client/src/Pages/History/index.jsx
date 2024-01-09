@@ -2,14 +2,14 @@ import "./History.css";
 import React, { useState, useEffect } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import axios from 'axios';
-// import Popup from "./Popup";
+// import ReviewPopup from "./ReviewPopup";
 
 const History = () => {
   const [tableHistory, setHistory] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [reviewData, setReviewData] = useState(null);
+  const [reviewData, setReviewData] = useState([]);
   const reservationsPerPage = 5;
 
   useEffect(() => {
@@ -18,20 +18,29 @@ const History = () => {
         setHistory(response.data);
         console.log(response.data);
 
-
-        axios.get(`http://localhost:3000/ratings/${response.data[0].customer_id}`)
-          .then(responsee => {
-            setReviewData(responsee.data);
-            console.log(responsee.data);
-          })
-          .catch(error => {
-            console.error(error);
-          });
+        response.data.forEach(reservation => {
+          axios.get(`http://localhost:3000/ratings/${reservation.customer_id}`)
+            .then(responsee => {
+              setReviewData(prevReviewData => ({
+                ...prevReviewData,
+                [reservation.customer_id]: responsee.data,
+              }));
+              console.log(responsee.data);
+            })
+            .catch(error => {
+              console.error(error);
+            });
+        });
       })
       .catch(error => {
         console.error(error);
       });
   }, []);
+
+  useEffect(() => {
+    // This useEffect will run whenever reviewData changes
+    console.log("Review data updated:", reviewData);
+  }, [reviewData]);
 
   const filteredReservations = tableHistory.filter((reservation) => {
     if (!startDate && !endDate) return true; // If no date range is set, show all reservations
@@ -81,6 +90,18 @@ const History = () => {
     setIsReviewFormOpen(false);
     setSelectedReservation(null);
   };
+  
+  const getStarsForReservation = (customerResId) => {
+    const review = reviewData.find((review) => review.id === customerResId);
+    return review ? review.stars : 'N/A';
+  };
+
+
+  const getCommentForReservation = (customerResId) => {
+    const review = reviewData.find((review) => review.id === customerResId);
+    return review ? review.comment : 'No comment available';
+  };
+
   return (
     <div className="history">
       <div className="history-title">
@@ -128,11 +149,11 @@ const History = () => {
               <td>{reservation.fname}</td>
               <td>{reservation.phone_number}</td>
               <td>{reservation.email}</td>
-              
             </tr>
           ))}
         </tbody>
       </table>
+      
       {isReviewFormOpen && (
         <div className="review-form">
           <button onClick={handleCloseReviewForm}>Close</button>
@@ -141,14 +162,13 @@ const History = () => {
           <p>Date: {selectedReservation.date}</p>
           <p>Time: {selectedReservation.time}</p>
           {reviewData ? (
-          <>
-            <p>Stars: {reviewData[0].stars}</p>
-            <p>Comment: {reviewData[0].comment}</p>
-          </>
-        ) : (
-          <p>No review available</p>
-        )}
-
+            <>
+              <p>Stars: {getStarsForReservation(selectedReservation.id)}</p>
+              <p>Comment: {getCommentForReservation(selectedReservation.id)}</p>
+            </>
+          ) : (
+            <p>No review available</p>
+          )}
         </div>
       )}
       
