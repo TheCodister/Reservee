@@ -92,15 +92,15 @@ const History = () => {
   };
   
   const getStarsForReservation = (customerResId) => {
-    const review = reviewData.find((review) => review.id === customerResId);
+    const review = reviewData[customerResId];
     return review ? review.stars : 'N/A';
   };
-
-
+  
   const getCommentForReservation = (customerResId) => {
-    const review = reviewData.find((review) => review.id === customerResId);
+    const review = reviewData[customerResId];
     return review ? review.comment : 'No comment available';
   };
+  
 
   return (
     <div className="history">
