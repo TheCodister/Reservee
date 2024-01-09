@@ -92,15 +92,31 @@ const History = () => {
   };
   
   const getStarsForReservation = (customerResId) => {
-    const review = reviewData[customerResId];
-    return review ? review.stars : 'N/A';
+    
+    const reviewsForCustomer = reviewData[customerResId];
+    
+    if (reviewsForCustomer && reviewsForCustomer.length > 0) {
+      return reviewsForCustomer[0].stars || 'N/A';
+    } else {
+      return 'No Stars';
+    }
   };
   
   const getCommentForReservation = (customerResId) => {
-    const review = reviewData[customerResId];
-    return review ? review.comment : 'No comment available';
+    const reviewsForCustomer = reviewData[customerResId];
+    
+    if (reviewsForCustomer && reviewsForCustomer.length > 0) {
+      return reviewsForCustomer[0].comment || 'No comment available';
+    } else {
+      return 'No review available';
+    }
   };
-  
+
+  const handleAddReviewClick = (event, reservation) => {
+    event.stopPropagation(); // Prevent row click event from firing
+    setSelectedReservation(reservation);
+    setIsReviewFormOpen(true);
+  };
 
   return (
     <div className="history">
@@ -149,6 +165,7 @@ const History = () => {
               <td>{reservation.fname}</td>
               <td>{reservation.phone_number}</td>
               <td>{reservation.email}</td>
+              <td> <button onClick={(e) => handleAddReviewClick(e, reservation)}>Add Review</button> </td>
             </tr>
           ))}
         </tbody>
@@ -163,8 +180,8 @@ const History = () => {
           <p>Time: {selectedReservation.time}</p>
           {reviewData ? (
             <>
-              <p>Stars: {getStarsForReservation(selectedReservation.id)}</p>
-              <p>Comment: {getCommentForReservation(selectedReservation.id)}</p>
+              <p>Stars: {getStarsForReservation(selectedReservation.customer_id)}</p>
+              <p>Comment: {getCommentForReservation(selectedReservation.customer_id)}</p>
             </>
           ) : (
             <p>No review available</p>
