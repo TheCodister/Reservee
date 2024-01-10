@@ -1,7 +1,7 @@
 // routes/customerRoutes.js
 const express = require('express');
-const models = require('../models'); // Adjust the path based on your folder structure
-
+const models = require('../models'); 
+const bcrypt = require('bcrypt');
 const router = express.Router();
 const customerModel = models.customerModel;
 
@@ -30,6 +30,73 @@ router.post("/", (req, res) => {
 	});
 });
 
+router.post('/signup', (req, res) => {
+	const { name, gender, email, phone_number, password } = req.body;
+  
+	customerModel.get(`SELECT * FROM customer WHERE email = ?`, [email], (err, row) => {
+	  if (err) {
+		console.error(err);
+		res.status(500).json({ error: 'Internal Server Error' });
+		return;
+	  }
+  
+	  if (row) {
+		res.status(400).json({ error: 'Email already exists. Choose another email.' });
+		return;
+	  }
+  
+	  bcrypt.hash(password, 10, (hashErr, hashedPassword) => {
+		if (hashErr) {
+		  console.error(hashErr);
+		  res.status(500).json({ error: 'Internal Server Error' });
+		  return;
+		}
+  
+		customerModel.run(
+		  `INSERT INTO customer (name, gender, email, phone_number, password) 
+		  VALUES (?, ?, ?, ?, ?)`,
+		  [name, gender, email, phone_number, hashedPassword],
+		  (insertErr) => {
+			if (insertErr) {
+			  console.error(insertErr);
+			  res.status(500).json({ error: 'Internal Server Error' });
+			  return;
+			}
+  
+			res.json({ message: 'Customer created successfully.' });
+		  }
+		);
+	  });
+	});
+});
+
+router.post('/login', (req, res) => {
+	const { email, password } = req.body;
+	customerModel.get(`SELECT * FROM customer WHERE email = ?`, 
+	[email], 
+	(err, row) => {
+		if (err) {
+			console.error(err);
+			res.status(500).json({ error: 'Internal Server Error' });
+			return;
+		}
+	
+		if (!row) {
+		res.status(401).json({ error: 'Invalid email!' });
+		return;
+		}
+
+		bcrypt.compare(password, row.password, (err, passwordMatch) => {
+			if (!passwordMatch) {
+				return res.status(401).json({ error: 'Wrong password!' });
+			}
+		
+			// Return the customer ID upon successful login
+			return res.status(200).json({ customerId: row.id });
+		});
+	});	
+});
+  
 /**
  * @route GET /customers
  * @desc Get a list of all customers
