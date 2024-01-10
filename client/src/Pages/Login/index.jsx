@@ -3,10 +3,13 @@
 import "./Login.css";
 import React, { useEffect, useState } from "react";
 import { TextField, Button, MenuItem } from "@mui/material";
+import { Snackbar, Alert } from "@mui/material";
 import axios from "axios";
 
 const Login = ({isLogin, setIsLogin}) => {
-  
+  const [openAlert, setOpenAlert] = useState(false);
+  const [alertSeverity, setAlertSeverity] = useState("error");
+  const [alertMessage, setAlertMessage] = useState("");
 
   const toggleForm = () => {
     setIsLogin((prevIsLogin) => !prevIsLogin);
@@ -40,6 +43,13 @@ const Login = ({isLogin, setIsLogin}) => {
     }));
   };
 
+  const handleAlertClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpenAlert(false);
+  };
+
   /* make cookie when need to get customer id*/
   const setCookie = (name, value, days) => {
     const expirationDate = new Date();
@@ -65,22 +75,43 @@ const Login = ({isLogin, setIsLogin}) => {
   const handleLoginSubmit = (e) => {
     e.preventDefault();
     // Add your login submit logic here
-    const status = axios.get(`http://localhost:8080/customers/login/${formData.email}/${formData.password}`, {    //template only
-          headers: {
-            "Content-Type": "application/json",
-          },
-        })
-        .then((response) => {
-          console.log('Fetched Data:', response.data)
-          return response.data
-        })
-        .then((data) => {
-          console.log('Fetched Data:', data)
-          setCookie( 'userID', data.Customer_id , 1);       
-        //   setcookie(getCookie('userID'))
-          console.log(getCookie('userID'))
-        })  
-
+      // Making a POST request using axios
+    const response = axios.post('http://localhost:3000/customers/login', {
+      email: formData.email,
+      password: formData.password
+    })
+    .then(function (response) {
+      console.log(response);
+      if(response.data) {
+        if(response.data.customerId) {
+          setCookie( 'userID', response.data.customerId, 1); 
+          console.log('customerid: ', response.data.customerId);
+          console.log("Cookie id: ", getCookie('userID'));
+          setAlertSeverity("success");
+          setAlertMessage("Login successfully!");
+          setOpenAlert(true);
+        }
+        else {
+          if(response.data.error) {
+            console.log("Login failed", response.data.error);
+            setAlertSeverity("error");
+            setAlertMessage("Login failed: " + response.data.error);
+            setOpenAlert(true);
+          }
+        }
+      }
+    })
+    .catch(function (error) {
+      console.log(error);
+      if(error.response.data) {
+        console.log("Login failed!", error.response.data);
+        setAlertSeverity("error");
+        setAlertMessage("Login failed: " + error.response.data.error);
+        setOpenAlert(true);
+      }
+    });
+    
+        // setCookie( 'userID', response.customerId, 1);  
     console.log("Login form submitted:", formData);
     // Example: Send login request to your server
   };
@@ -88,14 +119,34 @@ const Login = ({isLogin, setIsLogin}) => {
   const handleSignupSubmit = (e) => {
     e.preventDefault();
     // Add your signup submit logic here
-    try {
-        // Making a POST request using axios
-        const response = axios.post('http://localhost:8080/customers/', formData);  //template only
+ 
+    // Making a POST request using axios
+    const response = axios.post('http://localhost:3000/customers/signup', {
+      name: formData.fullName,
+      gender: formData.gender,
+      email: formData.email,
+      phone_number: formData.phone,
+      password: formData.password
+    })
+    .then(function (response) {
+      console.log(response);
+      toggleForm();
+      if(response.data.message) {
+        setAlertSeverity("success");
+        setAlertMessage(response.data.message);
+        setOpenAlert(true);
+      }
+    })
+    .catch(function (error) {
+      console.log("Sign up failed!", error);
+      if(error.response.data) {
+        console.log("Sign up failed!", error.response.data);
+        setAlertSeverity("error");
+        setAlertMessage("Sign up failed: " + error.response.data.error);
+        setOpenAlert(true);
+      }
+    });
 
-    } catch (error) {
-        console.error('Error posting data:', error);
-    }
-    toggleForm;
     console.log("Signup form submitted:", formData);
     // Example: Send signup request to your server
   };
@@ -169,9 +220,9 @@ const Login = ({isLogin, setIsLogin}) => {
                 required
                 sx={{ mb: '10px', width: "210px" }}
               >
-                <MenuItem value="female">Female</MenuItem>
-                <MenuItem value="male">Male</MenuItem>
-                <MenuItem value="notTell">Not Tell</MenuItem>
+                <MenuItem value="Female">Female</MenuItem>
+                <MenuItem value="Male">Male</MenuItem>
+                <MenuItem value="NotTell">Not Tell</MenuItem>
               </TextField>
             </>
           )}
@@ -184,6 +235,15 @@ const Login = ({isLogin, setIsLogin}) => {
       <div className="toggle-form">
         <p onClick={toggleForm}>{isLogin ? "Need an account? Sign Up" : "Already have an account? Login"}</p>
       </div>
+      <Snackbar
+        open={openAlert}
+        autoHideDuration={6000}
+        onClose={handleAlertClose}
+      >
+        <Alert onClose={handleAlertClose} severity={alertSeverity}>
+          {alertMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };
