@@ -10,6 +10,7 @@ const History = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [reviewData, setReviewData] = useState([]);
+  const [comment, setComment] = useState("");
   const reservationsPerPage = 5;
 
   useEffect(() => {
@@ -90,45 +91,79 @@ const History = () => {
     setIsReviewFormOpen(false);
     setSelectedReservation(null);
   };
-  
+
   const getStarsForReservation = (customerResId) => {
-    
-    const reviewsForCustomer = reviewData[customerResId];
-    
-    if (reviewsForCustomer && reviewsForCustomer.length > 0) {
-      return reviewsForCustomer[0].stars || 'N/A';
+    const reviewsForCustomer = reviewData[customerResId] || [];
+
+    if (reviewsForCustomer.length > 0) {
+      const totalStars = reviewsForCustomer.reduce((acc, review) => acc + review.stars, 0);
+      const averageStars = totalStars / reviewsForCustomer.length;
+      return averageStars.toFixed(1); // Return average stars rounded to 1 decimal place
     } else {
-      return 'No Stars';
+      // Return a flag to indicate no stars
+      return 'NoStars';
     }
   };
-  
+
   const getCommentForReservation = (customerResId) => {
-    const reviewsForCustomer = reviewData[customerResId];
-    
-    if (reviewsForCustomer && reviewsForCustomer.length > 0) {
-      return reviewsForCustomer[0].comment || 'No comment available';
+    const reviewsForCustomer = reviewData[customerResId] || [];
+
+    if (reviewsForCustomer.length > 0) {
+      const allComments = reviewsForCustomer.map(review => review.comment).join(', ');
+      return allComments || 'NoComment';
     } else {
-      return 'No review available';
+
+      return 'NoComment';
     }
   };
-
-  const handleAddReviewClick = (event, reservation) => {
-    event.stopPropagation(); // Prevent row click event from firing
-    setSelectedReservation(reservation);
-    setIsReviewFormOpen(true);
+  const handleCommentChange = (e) => {
+    setComment(e.target.value); 
   };
+  const addComment = async () => {
+    try {
+        const { id: rating_id, reservation_id, customer_id } = selectedReservation;
 
+        const stars = getStarsForReservation(customer_id);
+
+        const commentData = {
+            reservation_id: reservation_id,
+            stars: stars,
+            comment: comment,
+        };
+
+        let response;
+
+        if (rating_id) {
+            // If rating_id exists, it means there is an existing record, so make a PUT request
+            response = await axios.put(`http://localhost:3000/ratings`, {
+                ...commentData,
+                rating_id: rating_id,
+            });
+        } else {
+            // If rating_id does not exist, make a POST request
+            response = await axios.post(`http://localhost:3000/ratings`, commentData);
+        }
+
+        console.log("Comment added/updated successfully:", response.data);
+        // Handle success, maybe update the UI or show a success message
+    } catch (error) {
+        console.error("Error adding/updating comment:", error);
+        // Handle error, show an error message or perform other actions
+    }
+};
+
+  
   return (
     <div className="history">
       <div className="history-title">
         <h2>History</h2>
       </div>
       <div className="date-range-container">
-      <label htmlFor="dateRange" style={{fontSize:'20px' ,color:"blue"}}>"You can search/view reservation(s) by typing one or more of these"</label><br/>
+        <label htmlFor="dateRange" style={{ fontSize: '20px', color: "blue" }}>"You can search/view reservation(s) by typing one or more of these"</label><br />
         <label htmlFor="startDate">Start Date: </label>
         <input
 
-          style={{marginRight:'100px'}}
+          style={{ marginRight: '100px' }}
           type="date"
           id="startDate"
           value={startDate}
@@ -144,51 +179,60 @@ const History = () => {
       </div>
       <table>
         <thead>
-        <tr>
+          <tr>
             <th>Date</th>
             <th>Timeslots</th>
             <th>People</th>
             <th>Full Name</th>
             <th>Phone Number</th>
             <th>Email</th>
-            <th>Review</th>
           </tr>
         </thead>
         <tbody>
           {currentReservations.map((reservation) => (
             <tr key={reservation.id}
-            onClick={() =>handleRowClick(reservation)} // Navigate to a route based on reservation ID
-            style={{ cursor: 'pointer' }}>
+              onClick={() => handleRowClick(reservation)} // Navigate to a route based on reservation ID
+              style={{ cursor: 'pointer' }}>
               <td>{reservation.date}</td>
               <td>{reservation.time}</td>
               <td>{reservation.seat_number}</td>
               <td>{reservation.fname}</td>
               <td>{reservation.phone_number}</td>
               <td>{reservation.email}</td>
-              <td> <button onClick={(e) => handleAddReviewClick(e, reservation)}>Add Review</button> </td>
             </tr>
           ))}
         </tbody>
       </table>
-      
+
       {isReviewFormOpen && (
-        <div className="review-form">
-          <button onClick={handleCloseReviewForm}>Close</button>
-          <h2>Review for {selectedReservation.fname}</h2>
-          <p>Reservation ID: {selectedReservation.id}</p>
-          <p>Date: {selectedReservation.date}</p>
-          <p>Time: {selectedReservation.time}</p>
-          {reviewData ? (
-            <>
-              <p>Stars: {getStarsForReservation(selectedReservation.customer_id)}</p>
-              <p>Comment: {getCommentForReservation(selectedReservation.customer_id)}</p>
-            </>
-          ) : (
-            <p>No review available</p>
-          )}
-        </div>
-      )}
-      
+  <div className="overlay">
+    <div className="modal-content">
+      <h2>Review for {selectedReservation.fname}</h2>
+      <p>Reservation ID: {selectedReservation.id}</p>
+      <p>Date: {selectedReservation.date}</p>
+      <p>Time: {selectedReservation.time}</p>
+      <p>Stars: {getStarsForReservation(selectedReservation.customer_id)}</p>
+      <p>
+      Comment: {getCommentForReservation(selectedReservation.customer_id) !== 'NoComment' ? (
+          getCommentForReservation(selectedReservation.customer_id)
+        ) : (
+          <input 
+          type="text" 
+          placeholder="Enter your comment here"
+          value={comment}
+          onChange={handleCommentChange}
+          />
+          
+        )}
+        <button onClick={addComment}>Add Comment</button>
+      </p>
+      <button className="close-modal" onClick={handleCloseReviewForm}>Close</button>
+    </div>
+  </div>
+)}
+
+
+
       <div className="pagination">
         <button onClick={handlePrevPage} disabled={currentPage === 1}>
           Prev Page
