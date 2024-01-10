@@ -2,11 +2,11 @@
 
 import "./Login.css";
 import React, { useEffect, useState } from "react";
-import { TextField, Button } from "@mui/material";
+import { TextField, Button, MenuItem } from "@mui/material";
 import axios from "axios";
 
-const Login = () => {
-  const [isLogin, setIsLogin] = useState(true);
+const Login = ({isLogin, setIsLogin}) => {
+  
 
   const toggleForm = () => {
     setIsLogin((prevIsLogin) => !prevIsLogin);
@@ -24,6 +24,7 @@ const Login = () => {
     password: "",
     fullName: "",
     phone: "",
+    gender: "Male",
   };
 
   const [formData, setFormData] = useState(isLogin ? loginFormData : signupFormData);
@@ -104,8 +105,8 @@ const Login = () => {
       <div className="login-title">
         <h1>{isLogin ? "Login" : "Sign Up"}</h1>
       </div>
-      <div className="login-form">
-        <form onSubmit={isLogin ? handleLoginSubmit : handleSignupSubmit}>
+      <div>
+        <form className="login-form" onSubmit={isLogin ? handleLoginSubmit : handleSignupSubmit}>
           {/* Use MUI TextField for cleaner form structure */}
           {isLogin ? (
             <>
@@ -115,6 +116,7 @@ const Login = () => {
                 value={formData.email}
                 onChange={(e) => handleInputChange("email", e.target.value)}
                 required
+                sx={{mb: "10px"}}
               />
               <TextField
                 label="Password"
@@ -122,6 +124,7 @@ const Login = () => {
                 value={formData.password}
                 onChange={(e) => handleInputChange("password", e.target.value)}
                 required
+                sx={{mb: "10px"}}
               />
             </>
           ) : (
@@ -132,6 +135,7 @@ const Login = () => {
                 value={formData.email}
                 onChange={(e) => handleInputChange("email", e.target.value)}
                 required
+                sx={{mb: "10px"}}
               />
               <TextField
                 label="Password"
@@ -139,6 +143,7 @@ const Login = () => {
                 value={formData.password}
                 onChange={(e) => handleInputChange("password", e.target.value)}
                 required
+                sx={{mb: "10px"}}
               />
               <TextField
                 label="Full Name"
@@ -146,6 +151,7 @@ const Login = () => {
                 value={formData.fullName}
                 onChange={(e) => handleInputChange("fullName", e.target.value)}
                 required
+                sx={{mb: "10px"}}
               />
               <TextField
                 label="Phone"
@@ -153,7 +159,20 @@ const Login = () => {
                 value={formData.phone}
                 onChange={(e) => handleInputChange("phone", e.target.value)}
                 required
+                sx={{mb: "10px"}}
               />
+              <TextField
+                select
+                label="Gender"
+                value={formData.gender}
+                onChange={(e) => handleInputChange('gender', e.target.value)}
+                required
+                sx={{ mb: '10px', width: "210px" }}
+              >
+                <MenuItem value="female">Female</MenuItem>
+                <MenuItem value="male">Male</MenuItem>
+                <MenuItem value="notTell">Not Tell</MenuItem>
+              </TextField>
             </>
           )}
 

@@ -12,7 +12,6 @@ import { format } from 'date-fns';
 
 // Generate reserve table for view
 const TimeTable = ({reserveList, numOfTable, timeSlots}) => {
-  console.log("TT", reserveList)
   const [currentPage, setCurrentPage] = useState(0);
 
   const itemsPerPage = 6;

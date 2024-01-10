@@ -5,17 +5,19 @@ import { NavBar } from "./Components";
 import "./App.css";
 
 function App() {
+  const [isLogin, setIsLogin] = useState(true);
+  const [hasLogin, setHasLogin] = useState(false);
   return (
     <Router>
       <div className="App">
-        <NavBar />
+        <NavBar hasLogin={hasLogin}/>
         <div className="content">
           <Routes>
             <Route exact path="/" element={<Home />} />
             <Route path="/History" element={<History />} />
             <Route path="/Schedule/:restaurant_id" element={<Schedule/>} />
             <Route path="/APIsExample" element={<APIsExample />} />
-            <Route exact path="/Login" element={<Login />} />
+            <Route exact path="/Login" element={<Login isLogin={isLogin} setIsLogin={setIsLogin}/>} />
           </Routes>
         </div>
       </div>

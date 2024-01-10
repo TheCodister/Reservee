@@ -1,6 +1,6 @@
 import "./NavBar.css";
 import { Link } from "react-router-dom";
-const NavBar = () => {
+const NavBar = ({hasLogin}) => {
   return (
     <nav className="navbar">
       <img src="/./Images/Logo.png" alt="image" />
@@ -11,34 +11,43 @@ const NavBar = () => {
             <p>Home</p>
           </div>
         </Link>
+        
+        {hasLogin ? (
+            <>
+              <Link to="/History">
+                <div className="navbar-butt">
+                  <img src="/./Images/documents.png" alt="Icon" />
+                  <p>History</p>
+                </div>
+              </Link>
 
-        <Link to="/History">
-          <div className="navbar-butt">
-            <img src="/./Images/documents.png" alt="Icon" />
-            <p>History</p>
-          </div>
-        </Link>
+              <Link to="/Login">
+                <div className="navbar-butt">
+                  <img src="/./Images/logout.png" alt="Icon" />
+                  <p>Log out</p>
+                </div>
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link to="/Login">
+                <div className="navbar-butt">
+                  <img src="/./Images/documents.png" alt="Icon" />
+                  <p>History</p>
+                </div>
+              </Link>
 
-        <Link to="/Schedule/1">
-          <div className="navbar-butt">
-            <img src="/./Images/chart.png" alt="Icon" />
-            <p>Schedule</p>
-          </div>
-        </Link>
+              <Link to="/Login">
+                <div className="navbar-butt">
+                  <img src="/./Images/documents.png" alt="Icon" />
+                  <p>Login</p>
+                </div>
+              </Link>
+            </>
+          )}
+        
 
-        <Link to="/Login">
-          <div className="navbar-butt">
-            <img src="/./Images/documents.png" alt="Icon" />
-            <p>Login</p>
-          </div>
-        </Link>
-
-        <Link to="/APIsExample">
-          <div className="navbar-butt">
-            <img src="/./Images/logout.png" alt="Icon" />
-            <p>Log out</p>
-          </div>
-        </Link>
+        
       </div>
     </nav>
   );
