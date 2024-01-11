@@ -81,6 +81,7 @@ const APIsExample = (props) => {
     fetchRestaurants(searchKeyword);
   };
 
+
   return (
     <div>
       <h1>List of Restaurants</h1>

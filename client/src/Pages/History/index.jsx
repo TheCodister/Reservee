@@ -9,7 +9,7 @@ import Button from '@mui/material/Button';
 // import { IconButton, Rating } from "@mui/material";
 // import ReviewPopup from "./ReviewPopup";
 
-const History = () => {
+const History = ({customerID}) => {
   const [tableHistory, setHistory] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [startDate, setStartDate] = useState("");

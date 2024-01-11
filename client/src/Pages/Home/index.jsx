@@ -31,7 +31,7 @@ const Home = () => {
         setMenuurl(res.data);
       })
       .catch((err) => {
-        console.log(err);
+        console.log("Failed to get menu",err);
       });
   };
   const handleChange = (e) => {
