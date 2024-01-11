@@ -151,9 +151,11 @@ const History = () => {
 
         console.log("Comment added/updated successfully:", response.data);
         // Handle success, maybe update the UI or show a success message
+        handleCloseReviewForm();
     } catch (error) {
         console.error("Error adding/updating comment:", error);
         // Handle error, show an error message or perform other actions
+        handleCloseReviewForm();
     }
 };
 
@@ -242,6 +244,7 @@ const History = () => {
         <Button 
           sx={{ borderRadius: "20px"}} 
           variant="contained" 
+          // startIcon={<AddCircleOutlineIcon sx={{ color: "white"}}/>}
           onClick={handlePrevPage} disabled={currentPage === 1}
         >
           Previous Page
