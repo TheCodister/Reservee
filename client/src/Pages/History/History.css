@@ -13,6 +13,7 @@
   overflow-y: auto; 
   max-height: 50vh;
 }
+
 .date-range-container{
   border: 2px solid #000000;
   border-radius: 5px;
@@ -41,7 +42,7 @@
   color: #000000;
 
 }
-body.active-modal {
+.history.active-modal {
   overflow-y: hidden;
 }
 
@@ -52,7 +53,7 @@ body.active-modal {
   font-size: 18px;
 }
 
-.modal, .overlay {
+.history.modal, .history.overlay {
   width: 100vw;
   height: 100vh;
   top: 0;
@@ -62,9 +63,8 @@ body.active-modal {
   position: fixed;
 }
 
-.overlay {
+.history.overlay {
   background: rgba(49,49,49,0.8);
-  z-index: 999;
 }
 .modal-content {
   position: absolute;
