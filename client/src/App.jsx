@@ -15,11 +15,27 @@ function App() {
  
    /* make cookie when need to get customer id*/
    const setCookie = (name, value, days) => {
-    const expirationDate = new Date();
-    expirationDate.setDate(expirationDate.getDate() + days);
-    const cookieValue = `${name}=${value}; expires=${expirationDate.toUTCString()}; path=/`;
-    document.cookie = cookieValue;
+  const expirationDate = new Date();
+  expirationDate.setDate(expirationDate.getDate() + days);
+
+  // Set SameSite=Strict attribute
+  const cookieOptions = {
+    expires: expirationDate.toUTCString(),
+    path: '/',
+    secure: true,
+    SameSite: 'Strict',
   };
+
+  const cookieValue = `${name}=${value}; ${serializeCookieOptions(cookieOptions)}`;
+  document.cookie = cookieValue;
+};
+
+// Helper function to serialize cookie options
+const serializeCookieOptions = (options) => {
+  return Object.entries(options)
+    .map(([key, value]) => `${key}=${value}`)
+    .join('; ');
+};
   /*Take cookie*/
   function getCookie(cookieName) {
     const name = cookieName + "=";

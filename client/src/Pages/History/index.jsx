@@ -5,6 +5,7 @@ import axios from 'axios';
 // import ReviewPopup from "./ReviewPopup";
 
 const History = ({customerID}) => {
+  console.log(customerID)
   const [tableHistory, setHistory] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [startDate, setStartDate] = useState("");
