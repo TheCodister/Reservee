@@ -4,7 +4,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import axios from 'axios';
 // import Popup from "./Popup";
 
-const History = () => {
+const History = ({customerID}) => {
   const [tableHistory, setHistory] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [startDate, setStartDate] = useState("");

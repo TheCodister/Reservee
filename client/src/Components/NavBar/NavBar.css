@@ -34,6 +34,7 @@
   height: 3vw;
   border-radius: 2em;
   cursor: pointer;
+  color: rgb(85, 26, 139);
 }
 .navbar-butt:hover {
   background-color: #e7e7e7;

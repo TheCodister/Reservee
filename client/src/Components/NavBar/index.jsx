@@ -1,24 +1,26 @@
+import React,{ useEffect, useState } from "react";
 import "./NavBar.css";
 import { Link } from "react-router-dom";
-const NavBar = ({hasLogin}) => {
+import AlertDialog from "../AlertDialog";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@mui/material";
 
-  function getCookie(cookieName) {
-    const name = cookieName + "=";
-    const decodedCookie = decodeURIComponent(document.cookie);
-    const cookieArray = decodedCookie.split(';');
-  
-    for (let i = 0; i < cookieArray.length; i++) {
-      let cookie = cookieArray[i].trim();
-      if (cookie.indexOf(name) === 0) {
-        return cookie.substring(name.length, cookie.length);
-      }
-    }
-    return null;
+const NavBar = ({hasLogin, setHasLogin, deleteCookie}) => {
+  const [open, setOpen] = React.useState(false);
+  const navigate = useNavigate()
+  const handleClose = () => {
+    setOpen(false); // Close the AlertDialog
+  };
+  const handleLogout = () => {
+    setOpen(true) // Open the AlertDialog
   }
 
-  function deleteCookie(cookieName) {
-    document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-  }
+  const handleLogoutConfirm = () => {
+    setHasLogin(false);
+    deleteCookie('userID');
+    setOpen(false); // Close the AlertDialog after confirming logout
+    navigate("/Login")
+  };
 
   return (
     <nav className="navbar">
@@ -40,12 +42,10 @@ const NavBar = ({hasLogin}) => {
                 </div>
               </Link>
 
-              <Link to="/Login">
-                <div className="navbar-butt">
+                <div className="navbar-butt" onClick={handleLogout}>
                   <img src="/./Images/logout.png" alt="Icon" />
                   <p>Log out</p>
                 </div>
-              </Link>
             </>
           ) : (
             <>
@@ -68,6 +68,7 @@ const NavBar = ({hasLogin}) => {
 
         
       </div>
+      <AlertDialog open={open} handleClose={handleClose} handleConfirm={handleLogoutConfirm} />
     </nav>
   );
 };

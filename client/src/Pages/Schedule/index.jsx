@@ -118,12 +118,30 @@ const CustomerReview = ({reviewObject}) => {
   )
 }
 
-const Schedule = () => {
+const Schedule = ({getCookie}) => {
   // fetched data from db
   const { restaurant_id } = useParams();
   const [ restaurant, setRestaurant ] = useState();
+  const [customer, setCustomer] = useState();
   const [ resReserveList, setResReserveList ] = useState([]);
   const [ resReviewList, setResReviewList ] = useState([]);
+
+  const fetchCustomer = async () => {
+    const url = `http://localhost:3000/customers/${getCookie('userID')}`;
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("customers", data)
+        setCustomer(data);
+      } else {
+        console.error('Failed to fetch customer:', response.status);
+      }
+    } catch (error) {
+      console.error('Error fetching customer:', error.message);
+    }
+  };
 
   const fetchRestaurant = async () => {
     const url = `http://localhost:3000/restaurants/${restaurant_id}`;
@@ -181,6 +199,11 @@ const Schedule = () => {
 
   useEffect(() => {
     // Fetch all restaurant initially
+    fetchCustomer();
+  }, []);
+
+  useEffect(() => {
+    // Fetch all restaurant initially
     fetchRestaurant();
   }, []);
 
@@ -222,15 +245,27 @@ const Schedule = () => {
   const [formData, setFormData]= useState({
     CustomerID: 0,
     ReserveID: 0,
-    FName:'',
-    Phone:'',
-    Email:'',
+    FName: '',
+    Phone: '',
+    Email: '',
     Date:'',
     Time: '',
     People: 1,
     Note: '',
     TimeSlot: 0
   })
+
+  useEffect(() => {
+    // Update formData with customer information
+    if (customer) {
+      setFormData(prevFormData => ({
+        ...prevFormData,
+        FName: customer.name,
+        Phone: customer.phone_number,
+        Email: customer.email
+      }));
+    }
+  }, [customer]);
 
 
   // Reservation for selected date (table view change based on this list)
@@ -330,7 +365,7 @@ const Schedule = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ customer_id: newFormData.CustomerID, restaurant_id: restaurant_id, date: newFormData.Date,
+        body: JSON.stringify({ customer_id: getCookie('userID'), restaurant_id: restaurant_id, date: newFormData.Date,
                                 time: newFormData.Time, timeslot: newFormData.TimeSlot, fname: newFormData.FName , email: newFormData.Email,
                                 phone_number: newFormData.Phone, number_of_seats: newFormData.People, note: newFormData.Note }),
       });

@@ -3,14 +3,11 @@
 import "./Login.css";
 import React, { useEffect, useState } from "react";
 import { TextField, Button, MenuItem } from "@mui/material";
-import { Snackbar, Alert } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const Login = ({isLogin, setIsLogin}) => {
-  const [openAlert, setOpenAlert] = useState(false);
-  const [alertSeverity, setAlertSeverity] = useState("error");
-  const [alertMessage, setAlertMessage] = useState("");
-
+const Login = ({setOpenAlert, setAlertSeverity, setAlertMessage, hasLogin, setHasLogin, isLogin, setIsLogin, setCookie, getCookie}) => {
+  const navigate = useNavigate();
   const toggleForm = () => {
     setIsLogin((prevIsLogin) => !prevIsLogin);
     setFormData(isLogin ? loginFormData : signupFormData);
@@ -43,35 +40,6 @@ const Login = ({isLogin, setIsLogin}) => {
     }));
   };
 
-  const handleAlertClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpenAlert(false);
-  };
-
-  /* make cookie when need to get customer id*/
-  const setCookie = (name, value, days) => {
-    const expirationDate = new Date();
-    expirationDate.setDate(expirationDate.getDate() + days);
-    const cookieValue = `${name}=${value}; expires=${expirationDate.toUTCString()}; path=/`;
-    document.cookie = cookieValue;
-  };
-  /*Take cookie*/
-  function getCookie(cookieName) {
-    const name = cookieName + "=";
-    const decodedCookie = decodeURIComponent(document.cookie);
-    const cookieArray = decodedCookie.split(';');
-  
-    for (let i = 0; i < cookieArray.length; i++) {
-      let cookie = cookieArray[i].trim();
-      if (cookie.indexOf(name) === 0) {
-        return cookie.substring(name.length, cookie.length);
-      }
-    }
-    return null;
-  }
-
   const handleLoginSubmit = (e) => {
     e.preventDefault();
     // Add your login submit logic here
@@ -87,9 +55,12 @@ const Login = ({isLogin, setIsLogin}) => {
           setCookie( 'userID', response.data.customerId, 1); 
           console.log('customerid: ', response.data.customerId);
           console.log("Cookie id: ", getCookie('userID'));
+          setHasLogin(true);
+          
           setAlertSeverity("success");
           setAlertMessage("Login successfully!");
           setOpenAlert(true);
+          navigate("/");
         }
         else {
           if(response.data.error) {
@@ -235,15 +206,6 @@ const Login = ({isLogin, setIsLogin}) => {
       <div className="toggle-form">
         <p onClick={toggleForm}>{isLogin ? "Need an account? Sign Up" : "Already have an account? Login"}</p>
       </div>
-      <Snackbar
-        open={openAlert}
-        autoHideDuration={6000}
-        onClose={handleAlertClose}
-      >
-        <Alert onClose={handleAlertClose} severity={alertSeverity}>
-          {alertMessage}
-        </Alert>
-      </Snackbar>
     </div>
   );
 };
