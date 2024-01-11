@@ -1,0 +1,23 @@
+.IconDate {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    
+}
+
+.IconDate p {
+    margin-left: 5px;
+}
+
+.calendarButton {
+    border: none;
+    font-weight: bold;
+    padding: 15px 24px;
+    border-radius: 10px;
+    background-color: #E0E0E0;
+    cursor: pointer;
+}
+
+
+
