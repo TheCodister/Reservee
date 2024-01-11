@@ -2,6 +2,11 @@ import "./History.css";
 import React, { useState, useEffect } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import axios from 'axios';
+import Button from '@mui/material/Button';
+// import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+// import ArrowCircleLeftIcon from '@mui/icons-material/ArrowCircleLeft';
+// import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
+// import { IconButton, Rating } from "@mui/material";
 // import ReviewPopup from "./ReviewPopup";
 
 const History = () => {
@@ -234,13 +239,21 @@ const History = () => {
 
 
       <div className="pagination">
-        <button onClick={handlePrevPage} disabled={currentPage === 1}>
-          Prev Page
-        </button>
+        <Button 
+          sx={{ borderRadius: "20px"}} 
+          variant="contained" 
+          onClick={handlePrevPage} disabled={currentPage === 1}
+        >
+          Previous Page
+        </Button>
         <span>{`Page ${currentPage} of ${totalPages}`}</span>
-        <button onClick={handleNextPage} disabled={currentPage === totalPages}>
+        <Button 
+          sx={{ borderRadius: "20px"}} 
+          variant="contained" 
+          onClick={handleNextPage} disabled={currentPage === totalPages}
+        >
           Next Page
-        </button>
+        </Button>
       </div>
     </div>
   );
