@@ -12,7 +12,7 @@ import { FormModal } from "../../Components";
 // import ReviewPopup from "./ReviewPopup";
 
 
-const History = ({ customerID }) => {
+const History = ({ customerID, setOpenAlert, setAlertSeverity, setAlertMessage }) => {
   
   const [tableHistory, setHistory] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -241,8 +241,27 @@ const History = ({ customerID }) => {
     setOpenModifyFormModal(true)
   }
 
-  const handleDeleteReservation = () => {
+  const handleDeleteReservation = (reservation) => {
     // TODO
+    console.log(reservation);
+    const response = axios.delete(`http://localhost:3000/reservations/${reservation.id}`)
+    .then(function (response) {
+      console.log(response);
+      if(response.data.message) {
+        setAlertSeverity("success");
+        setAlertMessage(response.data.message);
+        setOpenAlert(true);
+      }
+    })
+    .catch(function (error) {
+      console.log("Removal failed!", error);
+      if(error.response.data) {
+        console.log("Removal failed!", error.response.data);
+        setAlertSeverity("error");
+        setAlertMessage("Removal failed: " + error.response.data.error);
+        setOpenAlert(true);
+      }
+    });
   }
 
   return (
@@ -326,7 +345,7 @@ const History = ({ customerID }) => {
                     variant="contained"
                     className="btn-add-review"
                     disabled={(convertedDate < currentDate)}
-                    onClick={() => handleDeleteReservation()}
+                    onClick={() => handleDeleteReservation(reservation)}
                   >
                     Remove
                   </Button>
