@@ -9,6 +9,7 @@ import ArrowCircleLeftIcon from '@mui/icons-material/ArrowCircleLeft';
 import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
 import { IconButton, Rating } from "@mui/material";
 import { format } from 'date-fns';
+import { useNavigate } from "react-router-dom";
 
 // Generate reserve table for view
 const TimeTable = ({reserveList, numOfTable, timeSlots}) => {
@@ -118,13 +119,14 @@ const CustomerReview = ({reviewObject}) => {
   )
 }
 
-const Schedule = ({getCookie}) => {
+const Schedule = ({getCookie, hasLogin}) => {
   // fetched data from db
   const { restaurant_id } = useParams();
   const [ restaurant, setRestaurant ] = useState();
   const [customer, setCustomer] = useState();
   const [ resReserveList, setResReserveList ] = useState([]);
   const [ resReviewList, setResReviewList ] = useState([]);
+  const navigate = useNavigate()
 
   const fetchCustomer = async () => {
     const url = `http://localhost:3000/customers/${getCookie('userID')}`;
@@ -291,7 +293,10 @@ const Schedule = ({getCookie}) => {
 
   // Create button on click
   const handleCreateButtonClick = () => {
-    setIsModalOpen(true);
+    if (hasLogin)
+      setIsModalOpen(true);
+    else
+      navigate("/Login")
   };
 
   // Close modal -> set form data to initial value
@@ -299,9 +304,9 @@ const Schedule = ({getCookie}) => {
     setFormData({
       CustomerID: 0,
       ReserveID: 0,
-      FName:'',
-      Phone:'',
-      Email:'',
+      FName: customer.name,
+      Phone: customer.phone_number,
+      Email: customer.email,
       Date:'',
       Time: '',
       People: 1,

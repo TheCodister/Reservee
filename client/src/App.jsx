@@ -70,7 +70,7 @@ const serializeCookieOptions = (options) => {
           <Routes>
             <Route exact path="/" element={<Home />} />
             <Route path="/History" element={<History customerID={getCookie('userID')}/>} />
-            <Route path="/Schedule/:restaurant_id" element={<Schedule getCookie={getCookie}/>} />
+            <Route path="/Schedule/:restaurant_id" element={<Schedule getCookie={getCookie} hasLogin={hasLogin}/>} />
             <Route path="/APIsExample" element={<APIsExample />} />
             <Route exact path="/Login" element={<Login setOpenAlert={setOpenAlert} setAlertSeverity={setAlertSeverity} setAlertMessage={setAlertMessage} hasLogin={hasLogin} setHasLogin={setHasLogin} isLogin={isLogin} setIsLogin={setIsLogin} setCookie={setCookie} getCookie={getCookie}/>} />
           </Routes>

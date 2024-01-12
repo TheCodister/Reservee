@@ -24,7 +24,6 @@
   margin-bottom: 20px;
 }
 .history table {
-  width: 80%;
   border-collapse: collapse;
   margin-top: 10px;
   margin-bottom: 10px;
@@ -34,14 +33,16 @@
 .history th, .history td {
   border: 1px solid #ddd;
   padding: 8px;
-  text-align: left;
+  text-align: left; 
 }
 
 .history th {
   background-color: #f2f2f2;
   color: #000000;
-
+  
 }
+
+
 .history.active-modal {
   overflow-y: hidden;
 }
@@ -51,6 +52,22 @@
   display: block;
   margin: 100px auto 0;
   font-size: 18px;
+}
+
+.btn-add-review {
+  display: block;
+  background: #007bff;
+  color: black;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-right: 5px;
+}
+
+.btn-add-review:hover {
+  background: #0056b3;
 }
 
 .history.modal, .history.overlay {

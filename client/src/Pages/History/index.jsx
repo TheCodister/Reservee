@@ -3,11 +3,13 @@ import React, { useState, useEffect } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import axios from 'axios';
 import Button from '@mui/material/Button';
+import { Rating } from "@mui/material";
 // import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 // import ArrowCircleLeftIcon from '@mui/icons-material/ArrowCircleLeft';
 // import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
 // import { IconButton, Rating } from "@mui/material";
 // import ReviewPopup from "./ReviewPopup";
+
 
 const History = ({ customerID }) => {
   
@@ -17,13 +19,14 @@ const History = ({ customerID }) => {
   const [endDate, setEndDate] = useState("");
   const [reviewData, setReviewData] = useState([]);
   const [comment, setComment] = useState("");
+  const [star, setStar] = useState(5)
   const reservationsPerPage = 5;
 
   useEffect(() => {
     axios.get('http://localhost:3000/reservations')
       .then(response => {
         setHistory(response.data);
-        //console.log(response.data);
+        // console.log(response.data);
 
         response.data.forEach(reservation => {
           axios.get(`http://localhost:3000/ratings/${reservation.customer_id}`)
@@ -91,40 +94,36 @@ const History = ({ customerID }) => {
   const [selectedReservation, setSelectedReservation] = useState(null);
   const [isReviewFormOpen, setIsReviewFormOpen] = useState(false);
 
-  const handleRowClick = (reservation) => {
-    setSelectedReservation(reservation);
-    setIsReviewFormOpen(true);
-  };
-
-  // useEffect(() => {
-  //   console.log('Selected Reservation 2:', selectedReservation);
-  // }, [selectedReservation]);
-  
-
-  
-
   const handleCloseReviewForm = () => {
     setIsReviewFormOpen(false);
     setSelectedReservation(null);
   };
 
-  const getStarsForReservation = (customerResId) => {
+  const getStarsForReservation = (customerResId, reservationID) => {
     const reviewsForCustomer = reviewData[customerResId] || [];
-
-    if (reviewsForCustomer.length > 0) {
-      const totalStars = reviewsForCustomer.reduce((acc, review) => acc + review.stars, 0);
-      const averageStars = totalStars / reviewsForCustomer.length;
-      return averageStars.toFixed(1); // Return average stars rounded to 1 decimal place
+    const matchingReview = reviewsForCustomer.find((review) => review.reservation_id === reservationID);
+    
+    if (matchingReview && matchingReview.stars !== -1) {
+      return matchingReview.stars;
     } else {
-      // Return a flag to indicate no stars
-      return 1;
+      return -1;
     }
+    // const reviewsForCustomer = reviewData[customerResId] || [];
+    // console.log("RC", reviewsForCustomer  )
+    // if (reviewsForCustomer.length > 0) {
+    //   const totalStars = reviewsForCustomer.reduce((acc, review) => acc + review.stars, 0);
+    //   const averageStars = totalStars / reviewsForCustomer.length;
+    //   return averageStars.toFixed(1); // Return average stars rounded to 1 decimal place
+    // } else {
+    //   // Return a flag to indicate no stars
+    //   return -1;
+    // }
   };
 
   const getCommentForReservation = (customerResId, reservationID) => {
     const reviewsForCustomer = reviewData[customerResId] || [];
     const matchingReview = reviewsForCustomer.find((review) => review.reservation_id === reservationID);
-
+    
     if (matchingReview && matchingReview.comment.trim() !== '') {
       return matchingReview.comment;
     } else {
@@ -135,6 +134,7 @@ const History = ({ customerID }) => {
   const handleCommentChange = (e) => {
     setComment(e.target.value);
   };
+
   const addComment = async () => {
     try {
       //console.log("Selected Reservation:", selectedReservation);
@@ -142,11 +142,11 @@ const History = ({ customerID }) => {
       const {id: reservation_id, customer_id, rating } = selectedReservation;
       const { id: rating_id } = rating || {};
   
-      const stars = getStarsForReservation(customer_id);
+      // const stars = getStarsForReservation(customer_id, selectedReservation.id);
   
       const commentData = {
         reservation_id: reservation_id,
-        stars: stars,
+        stars: star,
         comment: comment,
       };
 
@@ -186,6 +186,23 @@ const History = ({ customerID }) => {
     }
   };
 
+  const handleRatingChange = (event, newValue) => {
+    setStar(newValue)
+  };
+
+
+  const handleAddReviewButtonClick = (reservation) => {
+    setSelectedReservation(reservation);
+    setIsReviewFormOpen(true);
+  };
+
+  const handleModifyReservation = () => {
+    // TODO
+  }
+
+  const handleDeleteReservation = () => {
+    // TODO
+  }
 
   return (
     <div className="history">
@@ -220,29 +237,54 @@ const History = ({ customerID }) => {
             <th>Full Name</th>
             <th>Phone Number</th>
             <th>Email</th>
+            <th>Review</th>
+            <th>Modify</th>
+            <th>Remove</th>
           </tr>
         </thead>
         <tbody>
           {currentReservations
             .filter((reservation) => reservation.customer_id === parseInt(customerID))
             .map((reservation) => (
-              <tr
-                key={reservation.id}
-                onClick={() => handleRowClick(reservation)} // Navigate to a route based on reservation ID
-                style={{ cursor: 'pointer' }}
-              >
+              <tr key={reservation.id}>
                 <td>{reservation.date}</td>
                 <td>{reservation.time}</td>
                 <td>{reservation.seat_number}</td>
                 <td>{reservation.fname}</td>
                 <td>{reservation.phone_number}</td>
                 <td>{reservation.email}</td>
+                <td>
+                  <Button
+                    variant="contained"
+                    className="btn-add-review"
+                    onClick={() => handleAddReviewButtonClick(reservation)}
+                  >
+                    Review
+                  </Button>
+                </td>
+                <td>
+                  <Button
+                    variant="contained"
+                    className="btn-add-review"
+                    onClick={() => handleModifyReservation()}
+                  >
+                    Modify
+                  </Button>
+                </td>
+                <td>
+                  <Button
+                    variant="contained"
+                    className="btn-add-review"
+                    onClick={() => handleDeleteReservation()}
+                  >
+                    Remove
+                  </Button>
+                </td>
               </tr>
             ))}
         </tbody>
-
-
       </table>
+
 
       {isReviewFormOpen && (
         <div className="overlay">
@@ -251,7 +293,12 @@ const History = ({ customerID }) => {
             <p>Reservation ID: {selectedReservation.id}</p>
             <p>Date: {selectedReservation.date}</p>
             <p>Time: {selectedReservation.time}</p>
-            <p>Stars: {getStarsForReservation(selectedReservation.customer_id)}</p>
+            <p>Stars: {getStarsForReservation(selectedReservation.customer_id, selectedReservation.id) !== -1 ? (
+              getStarsForReservation(selectedReservation.customer_id, selectedReservation.id)
+            ) : (
+              <Rating name="half-rating" value={star} precision={0.5} onChange={handleRatingChange}/>
+            )}
+            </p>
             <p>
               Comment: {getCommentForReservation(selectedReservation.customer_id, selectedReservation.id) !== 'NoComment' ? (
                 getCommentForReservation(selectedReservation.customer_id, selectedReservation.id)
