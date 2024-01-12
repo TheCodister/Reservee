@@ -33,6 +33,7 @@ const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFor
 
   const handleDateChange = (e) => {
     const rawDate = e.target.value; // Capture the date in 'yyyy-mm-dd' format
+    console.log("raw date",rawDate);
     setTempDate(rawDate)
     const formattedDate = format(parseISO(rawDate), 'dd-MM-yyyy');
     handleFormChange('Date', formattedDate);

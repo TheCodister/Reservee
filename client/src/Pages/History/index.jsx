@@ -24,6 +24,57 @@ const History = ({ customerID, setOpenAlert, setAlertSeverity, setAlertMessage }
   const [openModifyFormModal, setOpenModifyFormModal] = useState(false)
   const reservationsPerPage = 5;
 
+  const [formData, setFormData]= useState({
+    CustomerID: 0,
+    ReserveID: 0,
+    FName: '',
+    Phone: '',
+    Email: '',
+    Date:'',
+    Time: '',
+    People: 1,
+    Note: '',
+    TimeSlot: 0
+  });
+  const [ restaurant, setRestaurant ] = useState();
+  const [ resReserveList, setResReserveList ] = useState([]);
+
+  const fetchRestaurant = async (restaurant_id) => {
+    const url = `http://localhost:3000/restaurants/${restaurant_id}`;
+
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("restaurant", data.restaurants)
+        setRestaurant(data.restaurants[0]);
+      } else {
+        console.error('Failed to fetch restaurants:', response.status);
+      }
+    } catch (error) {
+      console.error('Error fetching restaurants:', error.message);
+    }
+  };
+
+  const fetchResReserveList = async (restaurant_id) => {
+    const url = `http://localhost:3000/reservations/restaurant/${restaurant_id}`;
+
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("reservations", data.reservations)
+        setResReserveList(data.reservations);
+      } else {
+        console.error('Failed to fetch reservations:', response.status);
+      }
+    } catch (error) {
+      console.error('Error fetching reservations:', error.message);
+    }
+  };
+
   useEffect(() => {
     axios.get('http://localhost:3000/reservations')
       .then(response => {
@@ -193,35 +244,109 @@ const History = ({ customerID, setOpenAlert, setAlertSeverity, setAlertMessage }
     }
   };
 
-  // handle reserve confirm modal 
-  const handleConfirmModal = async () => {
-    const newFormData = {
-      ...formData,
-      TimeSlot: timeSlots.findIndex((slot) => slot.start === formData.Time) + 1,
-    };
+  // Close modal -> set form data to initial value
+  const handleCloseModal = () => {
+    setFormData({
+      CustomerID: 0,
+      ReserveID: 0,
+      FName: "",
+      Phone: "",
+      Email: "",
+      Date:'',
+      Time: '',
+      People: 1,
+      Note: '',
+      TimeSlot: 0
+    });
 
-    try {
-      // Send a POST request to add a new reserve
-      const response = await fetch('http://localhost:3000/reservations/reserve', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ customer_id: getCookie('userID'), restaurant_id: restaurant_id, date: newFormData.Date,
-                                time: newFormData.Time, timeslot: newFormData.TimeSlot, fname: newFormData.FName , email: newFormData.Email,
-                                phone_number: newFormData.Phone, number_of_seats: newFormData.People, note: newFormData.Note }),
+    setOpenModifyFormModal(false);
+  };
+  
+  // Generate an array of time slots from 9:00 to 21:00 with 30-minute intervals
+  // Format: timeSlots = [{start: "09:00", end: "9:30"}, {...}]
+  const generateTimeSlots = () => {
+    const startTime = new Date();
+    startTime.setHours(9, 0, 0); // Set start time to 9:00
+
+    const endTime = new Date();
+    endTime.setHours(21, 0, 0); // Set end time to 21:00
+
+    const timeSlots = [];
+
+    while (startTime < endTime) {
+      const timeSlotStart = new Date(startTime);
+      const timeSlotEnd = new Date(startTime.getTime() + 30 * 60 * 1000); // 30 minutes later
+
+      const formatTime = (date) =>
+        `${date.getHours().toString().padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}`;
+
+      timeSlots.push({
+        start: formatTime(timeSlotStart),
+        end: formatTime(timeSlotEnd),
       });
 
-      if (response.ok) {
-        console.log('Reservation added successfully!');
-      } else {
-        console.error('Failed to add Reservation:', response.status);
-      }
-    } catch (error) {
-      console.error('Error adding Reservation:', error.message);
+      startTime.setTime(startTime.getTime() + 30 * 60 * 1000); // Move to the next 30-minute interval
     }
-    fetchResReserveList();
-    setIsModalOpen(false);
+
+    return timeSlots;
+  };
+
+  const timeSlots = generateTimeSlots();
+
+  // handle reserve confirm modal 
+  const handleConfirmModal = async () => {
+    let fpart = "";
+    const response = await axios.put(`http://localhost:3000/reservations/infos/${formData.ReserveID}`, {
+      fname: formData.FName,
+      email: formData.Email,
+      phone_number: formData.Phone,
+      note: formData.Note
+    })
+    .then(function (response) {
+      console.log("success 1",response);
+      if(response.data.message) {
+        fpart = response.data.message
+      }
+    })
+    .catch(function (error) {
+      console.log("Modification failed!", error);
+      if(error.response.data) {
+        console.log("Modification failed!", error.response.data);
+        fpart = error.response.data.error
+      }
+    });
+    let spart = "";
+    await axios.put(`http://localhost:3000/reservations/${formData.ReserveID}`, {
+      date: formData.Date,
+      time: formData.Time,
+      timeslot: formData.TimeSlot,
+      number_of_seats: formData.People
+    })
+    .then(function (response) {
+      console.log("success 2",response);
+      if(response.data.message) {
+        spart = response.data.message
+      }
+    })
+    .catch(function (error) {
+      console.log("Modification failed!", error);
+      if(error.response.data) {
+        console.log("Modification failed!", error.response.data);
+        spart = error.response.data.error
+      }
+    });
+    if(fpart === 'Reservation updated successfully' && spart === 'Reservation updated successfully') {
+      setAlertSeverity("success");
+      setAlertMessage(fpart);
+      setOpenAlert(true);
+    }
+    else {
+      console.log(fpart, spart)
+      setAlertSeverity("error");
+      setAlertMessage("Modification failed: " + fpart);
+      setOpenAlert(true);
+    }
+    setOpenModifyFormModal(false);
   };
 
 
@@ -235,9 +360,24 @@ const History = ({ customerID, setOpenAlert, setAlertSeverity, setAlertMessage }
     setIsReviewFormOpen(true);
   };
 
-  const handleModifyReservation = (reservation) => {
+  const handleModifyReservation = async (reservation) => {
     // TODO
     console.log(reservation)
+    await fetchRestaurant(reservation.restaurant_id);
+    await fetchResReserveList(reservation.restaurant_id);
+    setFormData({
+      CustomerID: reservation.customer_id,
+      ReserveID: reservation.id,
+      FName: reservation.fname,
+      Phone: reservation.phone_number,
+      Email: reservation.email,
+      Date: reservation.date,
+      Time: reservation.time,
+      People: reservation.seat_number,
+      Note: reservation.note,
+      TimeSlot: reservation.timeslot
+    });
+
     setOpenModifyFormModal(true)
   }
 
@@ -355,7 +495,7 @@ const History = ({ customerID, setOpenAlert, setAlertSeverity, setAlertMessage }
         </tbody>
       </table>
 
-      {/* {openModifyFormModal && 
+      {openModifyFormModal && 
           <FormModal 
             onConfirm={handleConfirmModal} 
             onClose={handleCloseModal} 
@@ -363,11 +503,10 @@ const History = ({ customerID, setOpenAlert, setAlertSeverity, setAlertMessage }
             formData={formData}
             timeSlots={timeSlots}
             setFormData={setFormData}
-            selectedDate={selectedDate}
             reserveList={resReserveList}
             restaurant={restaurant}
           />
-      } */}
+      }
 
 
       {isReviewFormOpen && (
