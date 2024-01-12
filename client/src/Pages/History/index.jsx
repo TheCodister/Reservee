@@ -9,6 +9,13 @@ import Button from '@mui/material/Button';
 // import { IconButton, Rating } from "@mui/material";
 // import ReviewPopup from "./ReviewPopup";
 
+const Notification = ({ message, onClose }) => (
+  <div className="notification">
+    <p>{message}</p>
+    <button onClick={onClose}>Close</button>
+  </div>
+);
+
 const History = ({ customerID }) => {
   
   const [tableHistory, setHistory] = useState([]);
@@ -17,6 +24,7 @@ const History = ({ customerID }) => {
   const [endDate, setEndDate] = useState("");
   const [reviewData, setReviewData] = useState([]);
   const [comment, setComment] = useState("");
+  const [notification, setNotification] = useState(null);
   const reservationsPerPage = 5;
 
   useEffect(() => {
@@ -186,6 +194,22 @@ const History = ({ customerID }) => {
     }
   };
 
+  const handleAddReviewButtonClick = (reservation) => {
+    setSelectedReservation(reservation);
+    console.log(reservation);
+    const hasReview = reviewData[reservation]?.length > 0;
+    console.log(reviewData[reservation]);
+    if (hasReview) {
+      setNotification("Already has a review for this reservation");
+    } else {
+      setIsReviewFormOpen(true);
+    }
+  };
+
+  const closeNotification = () => {
+    setNotification(null);
+  };
+
 
   return (
     <div className="history">
@@ -220,6 +244,7 @@ const History = ({ customerID }) => {
             <th>Full Name</th>
             <th>Phone Number</th>
             <th>Email</th>
+            <th>Review</th>
           </tr>
         </thead>
         <tbody>
@@ -237,6 +262,13 @@ const History = ({ customerID }) => {
                 <td>{reservation.fname}</td>
                 <td>{reservation.phone_number}</td>
                 <td>{reservation.email}</td>
+                <td><Button
+                    variant="contained"
+                    className="btn-add-review"
+                    onClick={() => handleAddReviewButtonClick(reservation)}
+                  >
+                    Add Review
+                  </Button></td>
               </tr>
             ))}
         </tbody>
@@ -271,6 +303,10 @@ const History = ({ customerID }) => {
             <button className="close-modal" onClick={handleCloseReviewForm}>Close</button>
           </div>
         </div>
+      )}
+
+      {notification && (
+        <Notification message={notification} onClose={closeNotification} />
       )}
 
 
