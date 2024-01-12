@@ -12,7 +12,7 @@ import { FormModal, AlertDialog } from "../../Components";
 // import ReviewPopup from "./ReviewPopup";
 
 
-const History = ({ customerID }) => {
+const History = ({ customerID, setOpenAlert, setAlertSeverity, setAlertMessage }) => {
   
   const [tableHistory, setHistory] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -26,10 +26,11 @@ const History = ({ customerID }) => {
   const [isReviewFormOpen, setIsReviewFormOpen] = useState(false);
   const [canReview, setCanReview] = useState(false)
   const [open, setOpen] = React.useState(false);
+  const [filteredReservations, setFilteredReservations] = useState([])
+  const [deleteSuccess, setDeleteSuccess] = useState(false)
   const reservationsPerPage = 5;
-  
 
-  useEffect(() => {
+  const fetchData = () => {
     axios.get('http://localhost:3000/reservations')
       .then(response => {
         setHistory(response.data);
@@ -52,37 +53,51 @@ const History = ({ customerID }) => {
       .catch(error => {
         // console.error(error);
       });
+  }
+
+  useEffect(() => {
+    fetchData()
   }, []);
 
-  // useEffect(() => {
-  //   // This useEffect will run whenever reviewData changes
-  //   console.log("Review data updated:", reviewData);
-  // }, [reviewData]);
-  const filteredReservations = tableHistory.filter((reservation) => {
-    const reservationDate = new Date(reservation.date).getTime();
-    // Split the date string into day, month, and year
-    const [day, month, year] = reservation.date.split("-");
+  useEffect(() => {
+    if (deleteSuccess) {
+      fetchData()
+    }
+    
+  }, [deleteSuccess])
 
-    // Create a new Date object with the time set to midnight and the time zone offset
-    const convertedDate = new Date(`${year}-${month}-${day}T07:00:00+07:00`);
-
-    const startTimestamp = startDate ? new Date(startDate) : 0;
-    const endTimestamp = endDate ? new Date(endDate) : Infinity;
-
-    const isWithinDateRange =
-      (!startDate && !endDate) ||
-      (convertedDate >= startTimestamp && convertedDate <= endTimestamp);
-    const isMatchingCustomer = reservation.customer_id === parseInt(customerID);
   
-    return isWithinDateRange && isMatchingCustomer;
-  });
+  useEffect(() => {
+    setFilteredReservations(tableHistory.filter((reservation) => {
+      const reservationDate = new Date(reservation.date).getTime();
+      // Split the date string into day, month, and year
+      const [day, month, year] = reservation.date.split("-");
+  
+      // Create a new Date object with the time set to midnight and the time zone offset
+      const convertedDate = new Date(`${year}-${month}-${day}T07:00:00+07:00`);
+  
+      const startTimestamp = startDate ? new Date(startDate) : 0;
+      const endTimestamp = endDate ? new Date(endDate) : Infinity;
+  
+      const isWithinDateRange =
+        (!startDate && !endDate) ||
+        (convertedDate >= startTimestamp && convertedDate <= endTimestamp);
+      const isMatchingCustomer = reservation.customer_id === parseInt(customerID);
+    
+      return isWithinDateRange && isMatchingCustomer;
+    }))
+  }, [tableHistory])
 
   const indexOfLastReservation = currentPage * reservationsPerPage;
   const indexOfFirstReservation = indexOfLastReservation - reservationsPerPage;
-  const currentReservations = filteredReservations.slice(
-    indexOfFirstReservation,
-    indexOfLastReservation
-  );
+  const [currentReservations,setCurrentReservations] = useState([])
+
+  useEffect(() => {
+    setCurrentReservations(filteredReservations.slice(
+      indexOfFirstReservation,
+      indexOfLastReservation
+    ))
+  }, [filteredReservations])
 
   const totalPages = Math.ceil(filteredReservations.length / reservationsPerPage);
 
@@ -251,16 +266,35 @@ const History = ({ customerID }) => {
     setOpen(false); // Close the AlertDialog
   };
 
-  const handleDeleteConfirm = () => {
-    setOpen(false); // Close the AlertDialog after confirming logout
-    navigate("/Login")
+  const handleDeleteConfirm = (reservation) => {
+    console.log(reservation);
+    const response = axios.delete(`http://localhost:3000/reservations/${reservation.id}`)
+    .then(function (response) {
+      console.log(response);
+      if(response.data.message) {
+        setAlertSeverity("success");
+        setAlertMessage(response.data.message);
+        setOpenAlert(true);
+        setDeleteSuccess(true)
+      }
+    })
+    .catch(function (error) {
+      console.log("Removal failed!", error);
+      if(error.response.data) {
+        console.log("Removal failed!", error.response.data);
+        setAlertSeverity("error");
+        setAlertMessage("Removal failed: " + error.response.data.error);
+        setOpenAlert(true);
+      }
+    });
+    setOpen(false)
   };
 
-  const handleDeleteReservation = () => {
+  const handleDeleteReservation = (reservation) => {
     // TODO
+    setSelectedReservation(reservation);
     setOpen(true);
-    
-  }
+  }  
 
   return (
     <div className="history">
@@ -343,7 +377,7 @@ const History = ({ customerID }) => {
                     variant="contained"
                     className="btn-add-review"
                     disabled={(convertedDate < currentDate)}
-                    onClick={() => handleDeleteReservation()}
+                    onClick={() => handleDeleteReservation(reservation)}
                   >
                     Remove
                   </Button>
@@ -366,7 +400,7 @@ const History = ({ customerID }) => {
             restaurant={restaurant}
           />
       } */}
-      <AlertDialog title={"Do you want to delete your reservation?"} description={"This action can not be undone"} open={open} handleClose={handleClose} handleConfirm={handleDeleteConfirm} />
+      <AlertDialog title={"Do you want to delete your reservation?"} description={"This action can not be undone"} open={open} handleClose={handleClose} handleConfirm={() => handleDeleteConfirm(selectedReservation)} />
 
       {isReviewFormOpen && canReview && (
         <div className="overlay">

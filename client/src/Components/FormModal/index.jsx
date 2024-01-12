@@ -11,8 +11,10 @@ import "./FormModal.css";
 const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFormData, reserveList, restaurant}) => {
   const [phoneError, setPhoneError] = useState(false);
   const [tableError, setTableError] = useState(false);
+  const [timeError, setTimeError] = useState(false);
   const [maxSeat, setMaxSeat] = useState(restaurant.seat_capacity);
   const [tempDate, setTempDate] = useState('')
+  const [filteredTimeSlot, setFilteredTimeSlot] = useState([])
   const handleFormChange = (fieldName, value) => {
     setFormData((prevFormData) => ({
       ...prevFormData,
@@ -20,6 +22,10 @@ const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFor
     }));
 
     if(fieldName === 'Date') {
+      if (value != '') {
+        setTimeError(false)
+      }
+
       if(value != '' && formData.Time != '') {
         setTableError(false);
       }
@@ -56,6 +62,39 @@ const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFor
       setMaxSeat(restaurant.seat_capacity - sumOfSeatNumbers);
     }
   }, [formData.Date, formData.Time]);
+
+  useEffect(() => {
+    handleFormChange('Time', '')
+  //   const currentDate = new Date();
+
+  // // Create a Date object for the target time using the current date
+  // const targetDate = new Date(currentDate.toDateString() + " " + targetTime);
+  const dateString = formData.Date;
+  const parts = dateString.split('-');
+  const providedDate = new Date(parts[2], parts[1] - 1, parts[0]);
+  const currentDate = new Date();
+  
+  // Compare only the date part (ignore time)
+  const isCurrentDate =
+    providedDate.getDate() === currentDate.getDate() &&
+    providedDate.getMonth() === currentDate.getMonth() &&
+    providedDate.getFullYear() === currentDate.getFullYear();
+
+  if (isCurrentDate) {
+    setFilteredTimeSlot(timeSlots.filter((slot) => {
+      const currentTime = new Date();
+      const currentTimeString = `${currentTime.getHours().toString().padStart(2, "0")}:${currentTime
+        .getMinutes()
+        .toString()
+        .padStart(2, "0")}`;
+      return currentTimeString <= slot.start;
+    }))
+    
+  }
+  else {
+    setFilteredTimeSlot(timeSlots)
+  }
+  }, [formData.Date])
 
   const calculateMaxDate = () => {
     const maxDate = new Date();
@@ -181,7 +220,7 @@ const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFor
               onChange={(e) => handleFormChange("Time", e.target.value)}
               required
             >
-              {timeSlots.map((slot) => (
+              {filteredTimeSlot.map((slot) => (
                 <MenuItem key={slot.start} value={slot.start}>
                   {slot.start}
                 </MenuItem>
