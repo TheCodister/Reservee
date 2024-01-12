@@ -4,6 +4,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import axios from 'axios';
 import Button from '@mui/material/Button';
 import { Rating } from "@mui/material";
+import { FormModal } from "../../Components";
 // import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 // import ArrowCircleLeftIcon from '@mui/icons-material/ArrowCircleLeft';
 // import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
@@ -20,6 +21,7 @@ const History = ({ customerID }) => {
   const [reviewData, setReviewData] = useState([]);
   const [comment, setComment] = useState("");
   const [star, setStar] = useState(5)
+  const [openModifyFormModal, setOpenModifyFormModal] = useState(false)
   const reservationsPerPage = 5;
 
   useEffect(() => {
@@ -51,17 +53,22 @@ const History = ({ customerID }) => {
   //   // This useEffect will run whenever reviewData changes
   //   console.log("Review data updated:", reviewData);
   // }, [reviewData]);
-
   const filteredReservations = tableHistory.filter((reservation) => {
+    const reservationDate = new Date(reservation.date).getTime();
+    // Split the date string into day, month, and year
+    const [day, month, year] = reservation.date.split("-");
+
+    // Create a new Date object with the time set to midnight and the time zone offset
+    const convertedDate = new Date(`${year}-${month}-${day}T07:00:00+07:00`);
+
+    const startTimestamp = startDate ? new Date(startDate) : 0;
+    const endTimestamp = endDate ? new Date(endDate) : Infinity;
 
     const isWithinDateRange =
       (!startDate && !endDate) ||
-      (reservationDate >= startTimestamp && reservationDate <= endTimestamp);
-
-
+      (convertedDate >= startTimestamp && convertedDate <= endTimestamp);
     const isMatchingCustomer = reservation.customer_id === parseInt(customerID);
-
-
+  
     return isWithinDateRange && isMatchingCustomer;
   });
 
@@ -186,6 +193,38 @@ const History = ({ customerID }) => {
     }
   };
 
+  // handle reserve confirm modal 
+  const handleConfirmModal = async () => {
+    const newFormData = {
+      ...formData,
+      TimeSlot: timeSlots.findIndex((slot) => slot.start === formData.Time) + 1,
+    };
+
+    try {
+      // Send a POST request to add a new reserve
+      const response = await fetch('http://localhost:3000/reservations/reserve', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ customer_id: getCookie('userID'), restaurant_id: restaurant_id, date: newFormData.Date,
+                                time: newFormData.Time, timeslot: newFormData.TimeSlot, fname: newFormData.FName , email: newFormData.Email,
+                                phone_number: newFormData.Phone, number_of_seats: newFormData.People, note: newFormData.Note }),
+      });
+
+      if (response.ok) {
+        console.log('Reservation added successfully!');
+      } else {
+        console.error('Failed to add Reservation:', response.status);
+      }
+    } catch (error) {
+      console.error('Error adding Reservation:', error.message);
+    }
+    fetchResReserveList();
+    setIsModalOpen(false);
+  };
+
+
   const handleRatingChange = (event, newValue) => {
     setStar(newValue)
   };
@@ -196,8 +235,10 @@ const History = ({ customerID }) => {
     setIsReviewFormOpen(true);
   };
 
-  const handleModifyReservation = () => {
+  const handleModifyReservation = (reservation) => {
     // TODO
+    console.log(reservation)
+    setOpenModifyFormModal(true)
   }
 
   const handleDeleteReservation = () => {
@@ -245,7 +286,15 @@ const History = ({ customerID }) => {
         <tbody>
           {currentReservations
             .filter((reservation) => reservation.customer_id === parseInt(customerID))
-            .map((reservation) => (
+            .map((reservation) => {
+              // console.log(reservation)
+              const [day, month, year] = reservation.date.split("-");
+              const [hours, minutes] = reservation.time.split(':');
+              
+              const convertedDate = new Date(`${year}-${month}-${day}T${hours}:${minutes}:00+07:00`);
+              const currentDate = new Date(); 
+              
+              return (
               <tr key={reservation.id}>
                 <td>{reservation.date}</td>
                 <td>{reservation.time}</td>
@@ -266,7 +315,8 @@ const History = ({ customerID }) => {
                   <Button
                     variant="contained"
                     className="btn-add-review"
-                    onClick={() => handleModifyReservation()}
+                    disabled={(convertedDate < currentDate)}
+                    onClick={() => handleModifyReservation(reservation)}
                   >
                     Modify
                   </Button>
@@ -275,15 +325,30 @@ const History = ({ customerID }) => {
                   <Button
                     variant="contained"
                     className="btn-add-review"
+                    disabled={(convertedDate < currentDate)}
                     onClick={() => handleDeleteReservation()}
                   >
                     Remove
                   </Button>
                 </td>
               </tr>
-            ))}
+            )})}
         </tbody>
       </table>
+
+      {/* {openModifyFormModal && 
+          <FormModal 
+            onConfirm={handleConfirmModal} 
+            onClose={handleCloseModal} 
+            modalTitle={`Online Reservation`} 
+            formData={formData}
+            timeSlots={timeSlots}
+            setFormData={setFormData}
+            selectedDate={selectedDate}
+            reserveList={resReserveList}
+            restaurant={restaurant}
+          />
+      } */}
 
 
       {isReviewFormOpen && (
