@@ -68,7 +68,7 @@ const NavBar = ({hasLogin, setHasLogin, deleteCookie}) => {
 
         
       </div>
-      <AlertDialog open={open} handleClose={handleClose} handleConfirm={handleLogoutConfirm} />
+      <AlertDialog title={"Do you want to logout?"} description={"Logout will remove your cookie and make you unable to use some functions of the app."} open={open} handleClose={handleClose} handleConfirm={handleLogoutConfirm} />
     </nav>
   );
 };

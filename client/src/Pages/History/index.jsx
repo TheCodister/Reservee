@@ -4,7 +4,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import axios from 'axios';
 import Button from '@mui/material/Button';
 import { Rating } from "@mui/material";
-import { FormModal } from "../../Components";
+import { FormModal, AlertDialog } from "../../Components";
 // import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 // import ArrowCircleLeftIcon from '@mui/icons-material/ArrowCircleLeft';
 // import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
@@ -22,6 +22,13 @@ const History = ({ customerID, setOpenAlert, setAlertSeverity, setAlertMessage }
   const [comment, setComment] = useState("");
   const [star, setStar] = useState(5)
   const [openModifyFormModal, setOpenModifyFormModal] = useState(false)
+  const [selectedReservation, setSelectedReservation] = useState(null);
+  const [isReviewFormOpen, setIsReviewFormOpen] = useState(false);
+  const [canReview, setCanReview] = useState(false)
+  const [open, setOpen] = React.useState(false);
+  const [filteredReservations, setFilteredReservations] = useState([])
+  const [deleteSuccess, setDeleteSuccess] = useState(false)
+  const [modifySuccess, setModifySuccess] = useState(false)
   const reservationsPerPage = 5;
 
   const [formData, setFormData]= useState({
@@ -75,7 +82,7 @@ const History = ({ customerID, setOpenAlert, setAlertSeverity, setAlertMessage }
     }
   };
 
-  useEffect(() => {
+  const fetchData = () => {
     axios.get('http://localhost:3000/reservations')
       .then(response => {
         setHistory(response.data);
@@ -98,37 +105,54 @@ const History = ({ customerID, setOpenAlert, setAlertSeverity, setAlertMessage }
       .catch(error => {
         // console.error(error);
       });
+  }
+
+  useEffect(() => {
+    fetchData()
   }, []);
 
-  // useEffect(() => {
-  //   // This useEffect will run whenever reviewData changes
-  //   console.log("Review data updated:", reviewData);
-  // }, [reviewData]);
-  const filteredReservations = tableHistory.filter((reservation) => {
-    const reservationDate = new Date(reservation.date).getTime();
-    // Split the date string into day, month, and year
-    const [day, month, year] = reservation.date.split("-");
+  useEffect(() => {
+    fetchData()
+    
+  }, [deleteSuccess])
 
-    // Create a new Date object with the time set to midnight and the time zone offset
-    const convertedDate = new Date(`${year}-${month}-${day}T07:00:00+07:00`);
+  useEffect(() => {
+    fetchData()
+    
+  }, [modifySuccess])
 
-    const startTimestamp = startDate ? new Date(startDate) : 0;
-    const endTimestamp = endDate ? new Date(endDate) : Infinity;
-
-    const isWithinDateRange =
-      (!startDate && !endDate) ||
-      (convertedDate >= startTimestamp && convertedDate <= endTimestamp);
-    const isMatchingCustomer = reservation.customer_id === parseInt(customerID);
   
-    return isWithinDateRange && isMatchingCustomer;
-  });
+  useEffect(() => {
+    setFilteredReservations(tableHistory.filter((reservation) => {
+      const reservationDate = new Date(reservation.date).getTime();
+      // Split the date string into day, month, and year
+      const [day, month, year] = reservation.date.split("-");
+  
+      // Create a new Date object with the time set to midnight and the time zone offset
+      const convertedDate = new Date(`${year}-${month}-${day}T07:00:00+07:00`);
+  
+      const startTimestamp = startDate ? new Date(startDate) : 0;
+      const endTimestamp = endDate ? new Date(endDate) : Infinity;
+  
+      const isWithinDateRange =
+        (!startDate && !endDate) ||
+        (convertedDate >= startTimestamp && convertedDate <= endTimestamp);
+      const isMatchingCustomer = reservation.customer_id === parseInt(customerID);
+    
+      return isWithinDateRange && isMatchingCustomer;
+    }))
+  }, [tableHistory])
 
   const indexOfLastReservation = currentPage * reservationsPerPage;
   const indexOfFirstReservation = indexOfLastReservation - reservationsPerPage;
-  const currentReservations = filteredReservations.slice(
-    indexOfFirstReservation,
-    indexOfLastReservation
-  );
+  const [currentReservations,setCurrentReservations] = useState([])
+
+  useEffect(() => {
+    setCurrentReservations(filteredReservations.slice(
+      indexOfFirstReservation,
+      indexOfLastReservation
+    ))
+  }, [filteredReservations])
 
   const totalPages = Math.ceil(filteredReservations.length / reservationsPerPage);
 
@@ -149,8 +173,7 @@ const History = ({ customerID, setOpenAlert, setAlertSeverity, setAlertMessage }
     setEndDate(date);
     setCurrentPage(1); // Reset to the first page when the date range changes
   };
-  const [selectedReservation, setSelectedReservation] = useState(null);
-  const [isReviewFormOpen, setIsReviewFormOpen] = useState(false);
+
 
   const handleCloseReviewForm = () => {
     setIsReviewFormOpen(false);
@@ -166,16 +189,7 @@ const History = ({ customerID, setOpenAlert, setAlertSeverity, setAlertMessage }
     } else {
       return -1;
     }
-    // const reviewsForCustomer = reviewData[customerResId] || [];
-    // console.log("RC", reviewsForCustomer  )
-    // if (reviewsForCustomer.length > 0) {
-    //   const totalStars = reviewsForCustomer.reduce((acc, review) => acc + review.stars, 0);
-    //   const averageStars = totalStars / reviewsForCustomer.length;
-    //   return averageStars.toFixed(1); // Return average stars rounded to 1 decimal place
-    // } else {
-    //   // Return a flag to indicate no stars
-    //   return -1;
-    // }
+
   };
 
   const getCommentForReservation = (customerResId, reservationID) => {
@@ -339,6 +353,7 @@ const History = ({ customerID, setOpenAlert, setAlertSeverity, setAlertMessage }
       setAlertSeverity("success");
       setAlertMessage(fpart);
       setOpenAlert(true);
+      setModifySuccess(!modifySuccess);
     }
     else {
       console.log(fpart, spart)
@@ -356,6 +371,17 @@ const History = ({ customerID, setOpenAlert, setAlertSeverity, setAlertMessage }
 
 
   const handleAddReviewButtonClick = (reservation) => {
+    const [day, month, year] = reservation.date.split("-");
+    const [hours, minutes] = reservation.time.split(':');
+    
+    const convertedDate = new Date(`${year}-${month}-${day}T${hours}:${minutes}:00+07:00`);
+    const currentDate = new Date(); 
+    if (currentDate >= convertedDate) {
+      setCanReview(true)
+    }
+    else {
+      setCanReview(false)
+    }
     setSelectedReservation(reservation);
     setIsReviewFormOpen(true);
   };
@@ -381,8 +407,11 @@ const History = ({ customerID, setOpenAlert, setAlertSeverity, setAlertMessage }
     setOpenModifyFormModal(true)
   }
 
-  const handleDeleteReservation = (reservation) => {
-    // TODO
+  const handleClose = () => {
+    setOpen(false); // Close the AlertDialog
+  };
+
+  const handleDeleteConfirm = (reservation) => {
     console.log(reservation);
     const response = axios.delete(`http://localhost:3000/reservations/${reservation.id}`)
     .then(function (response) {
@@ -391,6 +420,7 @@ const History = ({ customerID, setOpenAlert, setAlertSeverity, setAlertMessage }
         setAlertSeverity("success");
         setAlertMessage(response.data.message);
         setOpenAlert(true);
+        setDeleteSuccess(!deleteSuccess)
       }
     })
     .catch(function (error) {
@@ -402,7 +432,14 @@ const History = ({ customerID, setOpenAlert, setAlertSeverity, setAlertMessage }
         setOpenAlert(true);
       }
     });
-  }
+    setOpen(false)
+  };
+
+  const handleDeleteReservation = (reservation) => {
+    // TODO
+    setSelectedReservation(reservation);
+    setOpen(true);
+  }  
 
   return (
     <div className="history">
@@ -506,10 +543,10 @@ const History = ({ customerID, setOpenAlert, setAlertSeverity, setAlertMessage }
             reserveList={resReserveList}
             restaurant={restaurant}
           />
-      }
+      } 
+      <AlertDialog title={"Do you want to delete your reservation?"} description={"This action can not be undone"} open={open} handleClose={handleClose} handleConfirm={() => handleDeleteConfirm(selectedReservation)} />
 
-
-      {isReviewFormOpen && (
+      {isReviewFormOpen && canReview && (
         <div className="overlay">
           <div className="modal-content">
             <h2>Review for {selectedReservation.fname}</h2>
@@ -542,6 +579,15 @@ const History = ({ customerID, setOpenAlert, setAlertSeverity, setAlertMessage }
           </div>
         </div>
       )}
+
+      {isReviewFormOpen && !canReview && (
+        <div className="overlay">
+          <div className="modal-content">
+            <p>You need to visit the restaurant first before making review</p>
+            <button className="close-modal" onClick={handleCloseReviewForm}>Close</button>
+          </div>
+        </div>
+        )}
 
 
       <div className="pagination">
