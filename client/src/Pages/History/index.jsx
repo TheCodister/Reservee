@@ -123,6 +123,7 @@ const History = ({ customerID, setOpenAlert, setAlertSeverity, setAlertMessage }
 
   
   useEffect(() => {
+    // console.log("TH",tableHistory)
     setFilteredReservations(tableHistory.filter((reservation) => {
       const reservationDate = new Date(reservation.date).getTime();
       // Split the date string into day, month, and year
@@ -130,7 +131,6 @@ const History = ({ customerID, setOpenAlert, setAlertSeverity, setAlertMessage }
   
       // Create a new Date object with the time set to midnight and the time zone offset
       const convertedDate = new Date(`${year}-${month}-${day}T07:00:00+07:00`);
-  
       const startTimestamp = startDate ? new Date(startDate) : 0;
       const endTimestamp = endDate ? new Date(endDate) : Infinity;
   
@@ -141,7 +141,7 @@ const History = ({ customerID, setOpenAlert, setAlertSeverity, setAlertMessage }
     
       return isWithinDateRange && isMatchingCustomer;
     }))
-  }, [tableHistory])
+  }, [tableHistory, startDate, endDate, currentPage])
 
   const indexOfLastReservation = currentPage * reservationsPerPage;
   const indexOfFirstReservation = indexOfLastReservation - reservationsPerPage;
