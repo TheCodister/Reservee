@@ -6,7 +6,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 
-export default function AlertDialog({ open, handleClose, handleConfirm}) {
+export default function AlertDialog({ title, description, open, handleClose, handleConfirm}) {
   return (
     <Dialog
       open={open}
@@ -15,11 +15,11 @@ export default function AlertDialog({ open, handleClose, handleConfirm}) {
       aria-describedby="alert-dialog-description"
     >
       <DialogTitle id="alert-dialog-title">
-        {"Do you want to logout?"}
+        {title}
       </DialogTitle>
       <DialogContent>
         <DialogContentText id="alert-dialog-description">
-          Logout will remove your cookie and make you unable to use some functions of the app.
+          {description}
         </DialogContentText>
       </DialogContent>
       <DialogActions>

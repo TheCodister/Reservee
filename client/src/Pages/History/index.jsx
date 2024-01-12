@@ -4,7 +4,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import axios from 'axios';
 import Button from '@mui/material/Button';
 import { Rating } from "@mui/material";
-import { FormModal } from "../../Components";
+import { FormModal, AlertDialog } from "../../Components";
 // import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 // import ArrowCircleLeftIcon from '@mui/icons-material/ArrowCircleLeft';
 // import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
@@ -22,7 +22,12 @@ const History = ({ customerID }) => {
   const [comment, setComment] = useState("");
   const [star, setStar] = useState(5)
   const [openModifyFormModal, setOpenModifyFormModal] = useState(false)
+  const [selectedReservation, setSelectedReservation] = useState(null);
+  const [isReviewFormOpen, setIsReviewFormOpen] = useState(false);
+  const [canReview, setCanReview] = useState(false)
+  const [open, setOpen] = React.useState(false);
   const reservationsPerPage = 5;
+  
 
   useEffect(() => {
     axios.get('http://localhost:3000/reservations')
@@ -98,8 +103,7 @@ const History = ({ customerID }) => {
     setEndDate(date);
     setCurrentPage(1); // Reset to the first page when the date range changes
   };
-  const [selectedReservation, setSelectedReservation] = useState(null);
-  const [isReviewFormOpen, setIsReviewFormOpen] = useState(false);
+
 
   const handleCloseReviewForm = () => {
     setIsReviewFormOpen(false);
@@ -115,16 +119,7 @@ const History = ({ customerID }) => {
     } else {
       return -1;
     }
-    // const reviewsForCustomer = reviewData[customerResId] || [];
-    // console.log("RC", reviewsForCustomer  )
-    // if (reviewsForCustomer.length > 0) {
-    //   const totalStars = reviewsForCustomer.reduce((acc, review) => acc + review.stars, 0);
-    //   const averageStars = totalStars / reviewsForCustomer.length;
-    //   return averageStars.toFixed(1); // Return average stars rounded to 1 decimal place
-    // } else {
-    //   // Return a flag to indicate no stars
-    //   return -1;
-    // }
+
   };
 
   const getCommentForReservation = (customerResId, reservationID) => {
@@ -231,6 +226,17 @@ const History = ({ customerID }) => {
 
 
   const handleAddReviewButtonClick = (reservation) => {
+    const [day, month, year] = reservation.date.split("-");
+    const [hours, minutes] = reservation.time.split(':');
+    
+    const convertedDate = new Date(`${year}-${month}-${day}T${hours}:${minutes}:00+07:00`);
+    const currentDate = new Date(); 
+    if (currentDate >= convertedDate) {
+      setCanReview(true)
+    }
+    else {
+      setCanReview(false)
+    }
     setSelectedReservation(reservation);
     setIsReviewFormOpen(true);
   };
@@ -241,8 +247,19 @@ const History = ({ customerID }) => {
     setOpenModifyFormModal(true)
   }
 
+  const handleClose = () => {
+    setOpen(false); // Close the AlertDialog
+  };
+
+  const handleDeleteConfirm = () => {
+    setOpen(false); // Close the AlertDialog after confirming logout
+    navigate("/Login")
+  };
+
   const handleDeleteReservation = () => {
     // TODO
+    setOpen(true);
+    
   }
 
   return (
@@ -349,9 +366,9 @@ const History = ({ customerID }) => {
             restaurant={restaurant}
           />
       } */}
+      <AlertDialog title={"Do you want to delete your reservation?"} description={"This action can not be undone"} open={open} handleClose={handleClose} handleConfirm={handleDeleteConfirm} />
 
-
-      {isReviewFormOpen && (
+      {isReviewFormOpen && canReview && (
         <div className="overlay">
           <div className="modal-content">
             <h2>Review for {selectedReservation.fname}</h2>
@@ -384,6 +401,15 @@ const History = ({ customerID }) => {
           </div>
         </div>
       )}
+
+      {isReviewFormOpen && !canReview && (
+        <div className="overlay">
+          <div className="modal-content">
+            <p>You need to visit the restaurant first before making review</p>
+            <button className="close-modal" onClick={handleCloseReviewForm}>Close</button>
+          </div>
+        </div>
+        )}
 
 
       <div className="pagination">
