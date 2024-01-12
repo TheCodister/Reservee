@@ -23,7 +23,7 @@ const History = ({ customerID }) => {
     axios.get('http://localhost:3000/reservations')
       .then(response => {
         setHistory(response.data);
-        console.log(response.data);
+        //console.log(response.data);
 
         response.data.forEach(reservation => {
           axios.get(`http://localhost:3000/ratings/${reservation.customer_id}`)
@@ -32,31 +32,34 @@ const History = ({ customerID }) => {
                 ...prevReviewData,
                 [reservation.customer_id]: responsee.data,
               }));
-              console.log(responsee.data);
+              // console.log(responsee.data);
             })
             .catch(error => {
-              console.error(error);
+              // console.error(error);
             });
         });
       })
       .catch(error => {
-        console.error(error);
+        // console.error(error);
       });
   }, []);
 
-  useEffect(() => {
-    // This useEffect will run whenever reviewData changes
-    console.log("Review data updated:", reviewData);
-  }, [reviewData]);
+  // useEffect(() => {
+  //   // This useEffect will run whenever reviewData changes
+  //   console.log("Review data updated:", reviewData);
+  // }, [reviewData]);
 
   const filteredReservations = tableHistory.filter((reservation) => {
-    if (!startDate && !endDate) return true; // If no date range is set, show all reservations
 
-    const reservationDate = new Date(reservation.date).getTime();
-    const startTimestamp = startDate ? new Date(startDate).getTime() : 0;
-    const endTimestamp = endDate ? new Date(endDate).getTime() : Infinity;
+    const isWithinDateRange =
+      (!startDate && !endDate) ||
+      (reservationDate >= startTimestamp && reservationDate <= endTimestamp);
 
-    return reservationDate >= startTimestamp && reservationDate <= endTimestamp;
+
+    const isMatchingCustomer = reservation.customer_id === parseInt(customerID);
+
+
+    return isWithinDateRange && isMatchingCustomer;
   });
 
   const indexOfLastReservation = currentPage * reservationsPerPage;
@@ -93,9 +96,9 @@ const History = ({ customerID }) => {
     setIsReviewFormOpen(true);
   };
 
-  useEffect(() => {
-    console.log('Selected Reservation 2:', selectedReservation);
-  }, [selectedReservation]);
+  // useEffect(() => {
+  //   console.log('Selected Reservation 2:', selectedReservation);
+  // }, [selectedReservation]);
   
 
   
@@ -134,7 +137,7 @@ const History = ({ customerID }) => {
   };
   const addComment = async () => {
     try {
-      console.log("Selected Reservation:", selectedReservation);
+      //console.log("Selected Reservation:", selectedReservation);
   
       const {id: reservation_id, customer_id, rating } = selectedReservation;
       const { id: rating_id } = rating || {};
@@ -149,8 +152,8 @@ const History = ({ customerID }) => {
 
       
   
-      console.log("Sending request with payload:", commentData);
-      console.log("ratingid0 ", rating_id);
+      // console.log("Sending request with payload:", commentData);
+      // console.log("ratingid0 ", rating_id);
   
       let response;
   
@@ -160,30 +163,28 @@ const History = ({ customerID }) => {
         response = await axios.post(`http://localhost:3000/ratings`, commentData);
       }
   
-      console.log("Comment added/updated successfully:", response.data);
+      // console.log("Comment added/updated successfully:", response.data);
+      window.location.reload();
       handleCloseReviewForm();
     } catch (error) {
-      console.error("Error adding/updating comment:", error);
+      // console.error("Error adding/updating comment:", error);
   
       if (error.response) {
-        console.error("Server responded with an error:", error.response.data);
+        // console.error("Server responded with an error:", error.response.data);
       } else if (error.request) {
-        console.error("No response received from the server");
+       // console.error("No response received from the server");
       } else {
-        console.error("Error setting up the request", error.message);
+        //console.error("Error setting up the request", error.message);
       }
   
       // Log specific error related to PUT or POST request
       if (error.config.method === "put" || error.config.method === "post") {
-        console.error(`Error in ${error.config.method.toUpperCase()} request:`, error.message);
+       // console.error(`Error in ${error.config.method.toUpperCase()} request:`, error.message);
       }
   
       handleCloseReviewForm();
     }
   };
-  
-  
-  
 
 
   return (
@@ -256,6 +257,7 @@ const History = ({ customerID }) => {
                 getCommentForReservation(selectedReservation.customer_id, selectedReservation.id)
               ) : (
                 <input
+                  className="comment-input"
                   type="text"
                   placeholder="Enter your comment here"
                   value={comment}
@@ -263,7 +265,7 @@ const History = ({ customerID }) => {
                 />
               )}
               {getCommentForReservation(selectedReservation.customer_id, selectedReservation.id) === 'NoComment' && (
-                <button onClick={addComment}>Add Comment</button>
+                <button className="add-comment-button" onClick={addComment}>Add Comment</button>
               )}
             </p>
             <button className="close-modal" onClick={handleCloseReviewForm}>Close</button>
