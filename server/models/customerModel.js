@@ -9,7 +9,8 @@ db.serialize(() => {
     name VARCHAR(100) NOT NULL, 
     gender VARCHAR(50),
     email VARCHAR(50),
-    phone_number VARCHAR(15))`);
+    phone_number VARCHAR(15),
+    password TEXT)`);
 });
 
 module.exports = db;
