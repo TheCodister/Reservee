@@ -11,7 +11,7 @@ import "./FormModal.css";
 const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFormData, reserveList, restaurant}) => {
   const [phoneError, setPhoneError] = useState(false);
   const [tableError, setTableError] = useState(false);
-  const [timeError, setTimeError] = useState(false);
+  const [timeError, setTimeError] = useState(true);
   const [maxSeat, setMaxSeat] = useState(restaurant.seat_capacity);
   const [tempDate, setTempDate] = useState('')
   const [filteredTimeSlot, setFilteredTimeSlot] = useState([])
@@ -206,7 +206,9 @@ const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFor
                     min: calculateMinDate(), // Set the minimum date dynamically
                   }}
                   required
+                  
                 />
+
 
 
             
@@ -219,6 +221,7 @@ const FormModal = ({ onConfirm, onClose, modalTitle, formData, timeSlots, setFor
               value={formData.Time}
               onChange={(e) => handleFormChange("Time", e.target.value)}
               required
+              disabled={timeError}
             >
               {filteredTimeSlot.map((slot) => (
                 <MenuItem key={slot.start} value={slot.start}>
